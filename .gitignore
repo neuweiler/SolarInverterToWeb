@@ -30,3 +30,12 @@
 *.exe
 *.out
 *.app
+
+Release
+.settings
+*.elf
+*.bin
+*.map
+*.ar
+*.mk
+sloeber.ino.cpp
