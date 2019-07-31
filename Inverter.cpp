@@ -21,9 +21,9 @@ Inverter::Inverter()
     busVoltage = 0;
     batteryVoltage = 0;
     batteryVoltageSCC = 0;
-    batteryChargeCurrent = 0;
-    batteryDischargeCurrent = 0;
+    batteryCurrent = 0;
     batterySOC = 0;
+    batteryPower = 0;
     pvCurrent = 0;
     pvVoltage = 0;
     pvChargingPower = 0;
@@ -52,23 +52,6 @@ void Inverter::init()
 {
     Serial.begin(2400);
 
-    Logger::debug("initializing inverter communication");
-    Serial.print("QPI\r");
-    delay(100);
-    readResponse();
-    Serial.print("QPIRI\r");
-    delay(100);
-    readResponse();
-    Serial.print("QPI\r");
-    delay(100);
-    readResponse();
-    Serial.print("QMN\r");
-    delay(100);
-    readResponse();
-    Serial.print("QPIWS\r");
-    delay(100);
-    readResponse();
-
     timestamp = millis();
 }
 
@@ -85,21 +68,28 @@ void Inverter::loop()
     timestamp = millis();
 }
 
+void Inverter::sendCommand(String command) {
+    String crc = CRCUtil::getCRC(command);
+
+    Serial.print(command);
+    Serial.print(crc);
+    Serial.write(13);
+    readResponse();
+}
+
 bool Inverter::readResponse()
 {
     if (Serial.available()) {
         byte size = Serial.readBytes(input, INPUT_BUFFER_SIZE);
         input[size] = 0;
-        Logger::debug("received %d bytes: %s", size, input);
-        return true;
+        return CRCUtil::checkCRC(String(input));
     }
     return false;
 }
 
 void Inverter::queryStatus()
 {
-    Logger::debug("query inverter status");
-    Serial.print("QPIGS\r");
+   sendCommand("QPIGS");
 }
 
 /**
@@ -113,6 +103,9 @@ void Inverter::parseStatusResponse(char *input)
 
     char *token = strtok(input, " ");
     if (token != NULL) {
+        uint16_t batteryChargeCurrent;
+        uint16_t batteryDischargeCurrent;
+
         token++; // skip the "("
         gridVoltage = atof(token);
         processFloat(&gridFrequency);
@@ -140,6 +133,8 @@ void Inverter::parseStatusResponse(char *input)
             token[3] = 0;
             mode = atol(token);
         }
+        batteryCurrent = (batteryDischargeCurrent > 0 ? batteryDischargeCurrent * -1 : batteryChargeCurrent);
+        batteryPower = abs(batteryCurrent * batteryVoltage);
     }
 }
 
@@ -169,64 +164,41 @@ void Inverter::processShort(uint8_t *value)
 
 String Inverter::toJSON()
 {
+    StaticJsonDocument<1024> jsonDoc;
+
+    jsonDoc["time"] = millis() / 1000;
+
+    JsonObject grid = jsonDoc.createNestedObject("grid");
+    grid["voltage"] = gridVoltage;
+    grid["frequency"] = gridFrequency;
+
+    JsonObject out = jsonDoc.createNestedObject("out");
+    out["voltage"] = outVoltage;
+    out["frequency"] = outFrequency;
+    out["powerApparent"] = outPowerApparent;
+    out["powerActive"] = outPowerActive;
+    out["load"] = outLoad;
+
+    JsonObject battery = jsonDoc.createNestedObject("battery");
+    battery["voltage"] = batteryVoltage;
+    battery["voltageSCC"] = batteryVoltageSCC;
+    battery["current"] = batteryCurrent;
+    battery["soc"] = batterySOC;
+    battery["power"]= batteryPower;
+
+    JsonObject pv = jsonDoc.createNestedObject("pv");
+    pv["voltage"] = pvVoltage;
+    pv["current"] = pvCurrent;
+    pv["power"] = pvChargingPower;
+
+    JsonObject system = jsonDoc.createNestedObject("system");
+    system["status"] = status;
+    system["mode"] = mode;
+    system["version"] = eepromVersion;
+    system["voltage"] = busVoltage;
+    system["temperature"] = temperature;
+
     String str;
-
-    str += "{";
-    str += "\"grid\": {";
-    prefix = false;
-    str += jsonElement("voltage", gridVoltage);
-    str += jsonElement("frequency", gridFrequency);
-    str += "},\"out\": {";
-    prefix = false;
-    str += jsonElement("voltage", outVoltage);
-    str += jsonElement("frequency", outFrequency);
-    str += jsonElement("powerApparent", outPowerApparent);
-    str += jsonElement("powerActive", outPowerActive);
-    str += jsonElement("load", outLoad);
-    str += "},\"battery\": {";
-    prefix = false;
-    str += jsonElement("voltage", batteryVoltage);
-    str += jsonElement("voltageSCC", batteryVoltageSCC);
-    str += jsonElement("currentCharge", batteryChargeCurrent);
-    str += jsonElement("currentDischarge", batteryDischargeCurrent);
-    str += jsonElement("soc", batterySOC);
-    str += "},\"pv\": {";
-    prefix = false;
-    str += jsonElement("voltage", pvVoltage);
-    str += jsonElement("current", pvCurrent);
-    str += jsonElement("power", pvChargingPower);
-    str += "},\"system\": {";
-    prefix = false;
-    str += jsonElement("status", status);
-    str += jsonElement("mode", mode);
-    str += jsonElement("version", eepromVersion);
-    str += jsonElement("voltage", busVoltage);
-    str += jsonElement("temperature", temperature);
-    str += jsonElement("fanCurrent", fanCurrent);
-    str += "}";
-    str += "}";
-
+    serializeJson(jsonDoc, str);
     return str;
 }
-
-String Inverter::jsonElement(String name, uint8_t value)
-{
-    snprintf(buffer, 79, "%s\"%s\": %d", (prefix ? "," : ""), name.c_str(), value);
-    prefix = true;
-    return buffer;
-}
-
-String Inverter::jsonElement(String name, uint16_t value)
-{
-    snprintf(buffer, 79, "%s\"%s\": %d", (prefix ? "," : ""), name.c_str(), value);
-    prefix = true;
-    return buffer;
-}
-
-String Inverter::jsonElement(String name, float value)
-{
-    snprintf(buffer, 79, "%s\"%s\": %.1f", (prefix ? "," : ""), name.c_str(), value);
-    prefix = true;
-    return buffer;
-}
-

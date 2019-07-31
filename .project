@@ -42,6 +42,16 @@
 			<locationURI>ECLIPSE_HOME/arduinoPlugin/packages/esp8266/hardware/esp8266/2.4.2/variants/d1_mini</locationURI>
 		</link>
 		<link>
+			<name>libraries/ArduinoJson</name>
+			<type>2</type>
+			<locationURI>ECLIPSE_HOME/arduinoPlugin/libraries/ArduinoJson/6.11.2</locationURI>
+		</link>
+		<link>
+			<name>libraries/ArduinoOTA</name>
+			<type>2</type>
+			<locationURI>ECLIPSE_HOME/arduinoPlugin/packages/esp8266/hardware/esp8266/2.4.2/libraries/ArduinoOTA</locationURI>
+		</link>
+		<link>
 			<name>libraries/ESP8266WebServer</name>
 			<type>2</type>
 			<locationURI>ECLIPSE_HOME/arduinoPlugin/packages/esp8266/hardware/esp8266/2.4.2/libraries/ESP8266WebServer</locationURI>
@@ -50,6 +60,26 @@
 			<name>libraries/ESP8266WiFi</name>
 			<type>2</type>
 			<locationURI>ECLIPSE_HOME/arduinoPlugin/packages/esp8266/hardware/esp8266/2.4.2/libraries/ESP8266WiFi</locationURI>
+		</link>
+		<link>
+			<name>libraries/ESP8266mDNS</name>
+			<type>2</type>
+			<locationURI>ECLIPSE_HOME/arduinoPlugin/packages/esp8266/hardware/esp8266/2.4.2/libraries/ESP8266mDNS</locationURI>
+		</link>
+		<link>
+			<name>libraries/Ethernet</name>
+			<type>2</type>
+			<locationURI>ECLIPSE_HOME/arduinoPlugin/packages/esp8266/hardware/esp8266/2.4.2/libraries/Ethernet</locationURI>
+		</link>
+		<link>
+			<name>libraries/SD</name>
+			<type>2</type>
+			<locationURI>ECLIPSE_HOME/arduinoPlugin/packages/esp8266/hardware/esp8266/2.4.2/libraries/SD</locationURI>
+		</link>
+		<link>
+			<name>libraries/SPI</name>
+			<type>2</type>
+			<locationURI>ECLIPSE_HOME/arduinoPlugin/packages/esp8266/hardware/esp8266/2.4.2/libraries/SPI</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>

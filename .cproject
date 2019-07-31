@@ -54,6 +54,10 @@
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/SD/src}&quot;"/>
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/SPI}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/ArduinoJson/src}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/Ethernet/src}&quot;"/>
                                     								
                                 </option>
                                 								
@@ -80,6 +84,10 @@
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/SD/src}&quot;"/>
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/SPI}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/ArduinoJson/src}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/Ethernet/src}&quot;"/>
                                     								
                                 </option>
                                 								
@@ -106,6 +114,10 @@
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/SD/src}&quot;"/>
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/SPI}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/ArduinoJson/src}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/Ethernet/src}&quot;"/>
                                     								
                                 </option>
                                 								
@@ -124,6 +136,12 @@
                         </toolChain>
                         					
                     </folderInfo>
+                    					
+                    <sourceEntries>
+                        						
+                        <entry excluding="libraries/ArduinoJson/third-party|libraries/ArduinoJson/scripts|libraries/ArduinoJson/test|libraries/ArduinoJson/fuzzing" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+                        					
+                    </sourceEntries>
                     				
                 </configuration>
                 			

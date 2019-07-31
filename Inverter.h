@@ -10,6 +10,8 @@
 
 #include <Arduino.h>
 #include "Logger.h"
+#include "CRCUtil.h"
+#include <ArduinoJson.h>
 
 #define INPUT_BUFFER_SIZE 250
 
@@ -36,6 +38,7 @@ private:
 	Inverter();
 	virtual ~Inverter();
 	void operator=(Inverter const&);
+	void sendCommand(String command);
 	bool readResponse();
 	void queryStatus();
 	void parseStatusResponse(char *input);
@@ -63,9 +66,9 @@ private:
 	uint16_t busVoltage; // in V
 	float batteryVoltage; // in V
 	float batteryVoltageSCC; // in V
-	uint16_t batteryChargeCurrent; // in A
-	uint16_t batteryDischargeCurrent; // in A
+	int16_t batteryCurrent; // in A
 	uint8_t batterySOC; // in percent
+    uint16_t batteryPower; // in W
 	uint16_t pvCurrent; // in A
 	float pvVoltage; // in V
 	uint16_t pvChargingPower; // in W

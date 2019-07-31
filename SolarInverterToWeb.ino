@@ -15,11 +15,11 @@ void setup() {
 	Logger::init();
 	Logger::info("Starting solar monitor...");
 
+    WebServer::getInstance()->init();
 	Inverter::getInstance()->init();
-	WebServer::getInstance()->init();
 }
 
 void loop() {
-	Inverter::getInstance()->loop();
 	WebServer::getInstance()->loop();
+    Inverter::getInstance()->loop();
 }
