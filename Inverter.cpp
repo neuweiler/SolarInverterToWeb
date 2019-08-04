@@ -71,10 +71,11 @@ void Inverter::loop()
 void Inverter::sendCommand(String command) {
     String crc = CRCUtil::getCRC(command);
 
+    Logger::info("sending command: %s", command.c_str());
+
     Serial.print(command);
     Serial.print(crc);
     Serial.write(13);
-    readResponse();
 }
 
 bool Inverter::readResponse()
@@ -82,7 +83,8 @@ bool Inverter::readResponse()
     if (Serial.available()) {
         byte size = Serial.readBytes(input, INPUT_BUFFER_SIZE);
         input[size] = 0;
-        return CRCUtil::checkCRC(String(input));
+        return true;
+//        return CRCUtil::checkCRC(String(input));
     }
     return false;
 }
@@ -134,7 +136,7 @@ void Inverter::parseStatusResponse(char *input)
             mode = atol(token);
         }
         batteryCurrent = (batteryDischargeCurrent > 0 ? batteryDischargeCurrent * -1 : batteryChargeCurrent);
-        batteryPower = abs(batteryCurrent * batteryVoltage);
+        batteryPower = batteryCurrent * batteryVoltage;
     }
 }
 
@@ -183,8 +185,8 @@ String Inverter::toJSON()
     battery["voltage"] = batteryVoltage;
     battery["voltageSCC"] = batteryVoltageSCC;
     battery["current"] = batteryCurrent;
-    battery["soc"] = batterySOC;
     battery["power"]= batteryPower;
+    battery["soc"] = batterySOC;
 
     JsonObject pv = jsonDoc.createNestedObject("pv");
     pv["voltage"] = pvVoltage;
