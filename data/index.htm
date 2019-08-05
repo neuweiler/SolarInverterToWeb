@@ -17,15 +17,16 @@
                     { //DOM Ready
                         freeboard.initialize(true);
 
+                        var source = "dashboard.json";
                         var hashpattern = window.location.hash.match(/(&|#)source=([^&]+)/);
                         if (hashpattern !== null) {
-                            $.getJSON(hashpattern[2], function(data) {
-                                freeboard.loadDashboard(data, function() {
-                                    freeboard.setEditing(false);
-                                });
-                            });
+                        	source = hashpattern[2];
                         }
-
+                        $.getJSON(source, function(data) {
+                            freeboard.loadDashboard(data, function() {
+                                freeboard.setEditing(false);
+                            });
+                        });
                     });
                 });
     </script>
