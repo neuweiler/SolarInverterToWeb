@@ -30,9 +30,9 @@ Inverter::Inverter()
     temperature = 0;
     fanCurrent = 0;
     eepromVersion = 0;
-    prefix = false;
 
     timestamp = 0;
+    maxSolarPower = 0;
 }
 
 Inverter::~Inverter()
@@ -135,7 +135,7 @@ void Inverter::parseStatusResponse(char *input)
             token[3] = 0;
             mode = atol(token);
         }
-        batteryCurrent = (batteryDischargeCurrent > 0 ? batteryDischargeCurrent * -1 : batteryChargeCurrent);
+        batteryCurrent = (batteryDischargeCurrent > 0 ? -1 * batteryDischargeCurrent : batteryChargeCurrent);
         batteryPower = batteryCurrent * batteryVoltage;
     }
 }
@@ -194,13 +194,32 @@ String Inverter::toJSON()
     pv["power"] = pvChargingPower;
 
     JsonObject system = jsonDoc.createNestedObject("system");
+    system["version"] = eepromVersion;
     system["status"] = status;
     system["mode"] = mode;
-    system["version"] = eepromVersion;
     system["voltage"] = busVoltage;
     system["temperature"] = temperature;
+    system["fanCurrent"] = fanCurrent;
 
     String str;
     serializeJson(jsonDoc, str);
     return str;
+}
+
+uint16_t Inverter::getMaximumSolarPower() {
+    if (outPowerActive > pvChargingPower) {
+        maxSolarPower = pvChargingPower;
+    } else {
+        if (pvVoltage > 310) {
+            maxSolarPower += 25;
+        }
+    }
+    return maxSolarPower;
+}
+
+/**
+ * Get the maximum applicable solar current in 0.1A
+ */
+uint16_t Inverter::getMaximumSolarCurrent() {
+    return getMaximumSolarPower() * 10 / (outVoltage > 0 ? outVoltage : 230);
 }

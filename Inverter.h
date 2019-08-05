@@ -33,6 +33,8 @@ public:
 	void init();
 	void loop();
 	String toJSON();
+	uint16_t getMaximumSolarPower();
+    uint16_t getMaximumSolarCurrent();
 
 private:
 	Inverter();
@@ -45,14 +47,10 @@ private:
 	void processFloat(float *value);
 	void processInt(uint16_t *value);
 	void processShort(uint8_t *value);
-    String jsonElement(String name, uint8_t value);
-    String jsonElement(String name, uint16_t value);
-    String jsonElement(String name, float value);
-    bool prefix;
-    char buffer[80];
 
 	char input[INPUT_BUFFER_SIZE + 1];
 	uint32_t timestamp;
+	uint16_t maxSolarPower;
 
 	uint8_t mode;
 	uint8_t status;
@@ -68,7 +66,7 @@ private:
 	float batteryVoltageSCC; // in V
 	int16_t batteryCurrent; // in A
 	uint8_t batterySOC; // in percent
-    uint16_t batteryPower; // in W
+    int16_t batteryPower; // in W
 	uint16_t pvCurrent; // in A
 	float pvVoltage; // in V
 	uint16_t pvChargingPower; // in W
