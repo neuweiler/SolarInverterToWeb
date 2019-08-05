@@ -47,6 +47,7 @@ private:
 	void processFloat(float *value);
 	void processInt(uint16_t *value);
 	void processShort(uint8_t *value);
+	void calculateMaximumSolarPower();
 
 	char input[INPUT_BUFFER_SIZE + 1];
 	uint32_t timestamp;

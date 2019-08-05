@@ -1,12 +1,25 @@
 /*
  * Station.cpp
  *
+ * This class handles the connection to a consumer's WLAN and sends
+ * the maximum available power to it. The purpose is to keep it's
+ * consumption at or below what the PV panels are able to deliver.
+ * So no power from a connected battery or grid is used.
+ * This is useful e.g. when charging an electric car.
+ *
+ * When a client is connected to our AP, the output D5 goes high,
+ * allowing an LED to signal a connected client. When this device is
+ * connected to the consumer's WLAN, D6 will go high.
+ *
  *  Created on: 4 Aug 2019
  *      Author: Michael Neuweiler
  */
 
 #include "Station.h"
 
+/**
+ * Constructor
+ */
 Station::Station()
 {
     timestamp = 0;
@@ -21,7 +34,7 @@ Station::~Station()
 }
 
 /**
- * Get singleton instance
+ * Get singleton instance.
  */
 Station* Station::getInstance()
 {
@@ -29,6 +42,9 @@ Station* Station::getInstance()
     return &instance;
 }
 
+/**
+ * Initialize the WiFi client and output ports.
+ */
 void Station::init()
 {
     pinMode(LED_STATION, OUTPUT);
@@ -41,6 +57,9 @@ void Station::init()
     Logger::info("started WiFi Station for SSID %s", STATION_SSID);
 }
 
+/**
+ * The main processing logic.
+ */
 void Station::loop()
 {
     if (millis() - timestamp < 2000) {
@@ -54,6 +73,14 @@ void Station::loop()
     timestamp = millis();
 }
 
+/**
+ * Check if a connection to or from a device is established
+ * and set digital ports high/low accordingly. Tries to (re)establish
+ * a connection to the target WLAN.
+ *
+ * As in dual mode (WIFI_AP_STA) the auto reconnect has to be
+ * disabled, we need to manually try to connect to the AP every 15sec.
+ */
 void Station::checkConnection()
 {
     if (WiFi.isConnected()) {
@@ -74,6 +101,9 @@ void Station::checkConnection()
     digitalWrite(LED_AP, (apConnected ? HIGH : LOW));
 }
 
+/**
+ * Create GET request and send maximum solar current to target device.
+ */
 void Station::sendUpdate()
 {
     HTTPClient http;

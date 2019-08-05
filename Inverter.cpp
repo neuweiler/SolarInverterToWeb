@@ -1,12 +1,17 @@
 /*
  * Inverter.cpp
  *
+ * Communicates with the inverter and parses its response.
+ *
  *  Created on: 13 Jul 2019
  *      Author: Michael Neuweiler
  */
 
 #include "Inverter.h"
 
+/**
+ * Constructor
+ */
 Inverter::Inverter()
 {
     mode = off;
@@ -40,7 +45,7 @@ Inverter::~Inverter()
 }
 
 /**
- * Get singleton instance
+ * Get singleton instance.
  */
 Inverter* Inverter::getInstance()
 {
@@ -48,6 +53,9 @@ Inverter* Inverter::getInstance()
     return &instance;
 }
 
+/**
+ * Initialize the Inverter.
+ */
 void Inverter::init()
 {
     Serial.begin(2400);
@@ -55,6 +63,9 @@ void Inverter::init()
     timestamp = millis();
 }
 
+/**
+ * The main processing logic, called by the program's loop().
+ */
 void Inverter::loop()
 {
     if (timestamp + 1000 > millis())
@@ -65,9 +76,14 @@ void Inverter::loop()
     }
     queryStatus();
 
+    calculateMaximumSolarPower();
+
     timestamp = millis();
 }
 
+/**
+ * Send a command to the inverter with a checksum.
+ */
 void Inverter::sendCommand(String command) {
     String crc = CRCUtil::getCRC(command);
 
@@ -78,6 +94,9 @@ void Inverter::sendCommand(String command) {
     Serial.write(13);
 }
 
+/**
+ * Check if a response is available on the serial port and read it to a buffer.
+ */
 bool Inverter::readResponse()
 {
     if (Serial.available()) {
@@ -89,13 +108,18 @@ bool Inverter::readResponse()
     return false;
 }
 
+/**
+ * Query the actual data and status from the inverter.
+ */
 void Inverter::queryStatus()
 {
    sendCommand("QPIGS");
 }
 
 /**
- * Example input: "(231.0 49.9 222.2 51.0 1800 1810 050 400 12.11 005 090 123 0003 430.1 12.22 11 22 33 99 00044 2"
+ * Parse the inverter's response to a status request.
+ *
+ * Example: "(231.0 49.9 222.2 51.0 1800 1810 050 400 12.11 005 090 123 0003 430.1 12.22 11 22 33 99 00044 2"
  */
 void Inverter::parseStatusResponse(char *input)
 {
@@ -140,6 +164,9 @@ void Inverter::parseStatusResponse(char *input)
     }
 }
 
+/**
+ * Read the next token, parse and put into a float variable.
+ */
 void Inverter::processFloat(float *value)
 {
     char *token = strtok(0, " ");
@@ -148,6 +175,9 @@ void Inverter::processFloat(float *value)
     }
 }
 
+/**
+ * Read the next token, parse and put into a uint16_t variable.
+ */
 void Inverter::processInt(uint16_t *value)
 {
     char *token = strtok(0, " ");
@@ -156,6 +186,9 @@ void Inverter::processInt(uint16_t *value)
     }
 }
 
+/**
+ * Read the next token, parse and put into a uint8_t variable.
+ */
 void Inverter::processShort(uint8_t *value)
 {
     char *token = strtok(0, " ");
@@ -164,6 +197,9 @@ void Inverter::processShort(uint8_t *value)
     }
 }
 
+/**
+ * Convert the actual values into a JSON string.
+ */
 String Inverter::toJSON()
 {
     StaticJsonDocument<1024> jsonDoc;
@@ -192,6 +228,8 @@ String Inverter::toJSON()
     pv["voltage"] = pvVoltage;
     pv["current"] = pvCurrent;
     pv["power"] = pvChargingPower;
+    pv["maxPower"] = getMaximumSolarPower();
+    pv["maxCurrent"] = getMaximumSolarCurrent();
 
     JsonObject system = jsonDoc.createNestedObject("system");
     system["version"] = eepromVersion;
@@ -206,7 +244,11 @@ String Inverter::toJSON()
     return str;
 }
 
-uint16_t Inverter::getMaximumSolarPower() {
+/**
+ * Calculate the maximum available solar power.
+ * The goal is to use only PV input, no battery and no grid power.
+ */
+void Inverter::calculateMaximumSolarPower() {
     if (outPowerActive > pvChargingPower) {
         maxSolarPower = pvChargingPower;
     } else {
@@ -214,6 +256,12 @@ uint16_t Inverter::getMaximumSolarPower() {
             maxSolarPower += 25;
         }
     }
+}
+
+/**
+ * Return the calculated maximum power to restrict power input to PV (in Watt)
+ */
+uint16_t Inverter::getMaximumSolarPower() {
     return maxSolarPower;
 }
 
@@ -223,3 +271,4 @@ uint16_t Inverter::getMaximumSolarPower() {
 uint16_t Inverter::getMaximumSolarCurrent() {
     return getMaximumSolarPower() * 10 / (outVoltage > 0 ? outVoltage : 230);
 }
+

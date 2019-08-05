@@ -1,6 +1,8 @@
 /*
  * WebServer.cpp
  *
+ * Provides a small webserver to read out data as pure JSON or in a dashboard.
+ *
  *  Created on: 13 Jul 2019
  *      Author: Michael Neuweiler
  */
@@ -26,6 +28,9 @@ WebServer* WebServer::getInstance()
     return &instance;
 }
 
+/**
+ * Initialize the WiFi as soft AP and configure the web server.
+ */
 void WebServer::init()
 {
     SPIFFS.begin();
@@ -44,12 +49,18 @@ void WebServer::init()
     Logger::info("started webserver");
 }
 
+/**
+ * The main processing logic.
+ */
 void WebServer::loop()
 {
     server->handleClient();
     MDNS.update();
 }
 
+/**
+ * Find out if we can handle the request.
+ */
 bool WebServer::canHandle(HTTPMethod requestMethod, String requestUri)
 {
     if (requestMethod == HTTP_GET && (requestUri.equals("/data") || requestUri.equals("/list"))) {
@@ -58,6 +69,9 @@ bool WebServer::canHandle(HTTPMethod requestMethod, String requestUri)
     return false;
 }
 
+/**
+ * Handle a request and send the inverter data.
+ */
 bool WebServer::handle(ESP8266WebServer &server, HTTPMethod requestMethod, String requestUri)
 {
     if (canHandle(requestMethod, requestUri)) {
@@ -70,17 +84,12 @@ bool WebServer::handle(ESP8266WebServer &server, HTTPMethod requestMethod, Strin
     return false;
 }
 
+/**
+ * Create file list and send as response.
+ */
 void WebServer::handleFileList()
 {
-    if (!server->hasArg("dir")) {
-        server->send(500, "text/plain", "BAD ARGS");
-        return;
-    }
-
-    String path = server->arg("dir");
-    Dir dir = SPIFFS.openDir(path);
-    path = String();
-
+    Dir dir = SPIFFS.openDir("/");
     String output = "[";
     while (dir.next()) {
         File entry = dir.openFile("r");
@@ -95,7 +104,6 @@ void WebServer::handleFileList()
         output += "\"}";
         entry.close();
     }
-
     output += "]";
     server->send(200, "text/json", output);
 }
