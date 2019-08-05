@@ -14,17 +14,17 @@
 #include "Logger.h"
 #include "Inverter.h"
 
+#define AP_SSID "solar"
+#define AP_PASSWORD "inverter"
+
 class WebServer : public RequestHandler {
 public:
 	static WebServer* getInstance();
 	void init();
 	void loop();
-	void handleRootPath();
     bool canHandle(HTTPMethod requestMethod, String requestUri) override;
     bool handle(ESP8266WebServer &server, HTTPMethod requestMethod, String requestUri) override;
-    bool handleFileRead(String path);
     void handleFileList();
-    String getContentType(String filename);
 
 private:
 	WebServer();
