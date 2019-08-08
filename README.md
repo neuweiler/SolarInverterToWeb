@@ -7,6 +7,9 @@ The device acts as an access point (SSID: solar, Pwd: inverter) and also tries t
 
 Use TX/RX pins and a RS-232-to-TTL converter to connect to many of the standard solar inverters from China.
 
+Schema:
+![Project Schema](doc/SolarInverter2WebSchema.png)
+
 Example JSON output: 
 ```
 {
