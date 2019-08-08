@@ -84,7 +84,8 @@ void Inverter::loop()
 /**
  * Send a command to the inverter with a checksum.
  */
-void Inverter::sendCommand(String command) {
+void Inverter::sendCommand(String command)
+{
     String crc = CRCUtil::getCRC(command);
 
     Logger::info("sending command: %s", command.c_str());
@@ -101,9 +102,8 @@ bool Inverter::readResponse()
 {
     if (Serial.available()) {
         byte size = Serial.readBytes(input, INPUT_BUFFER_SIZE);
-        input[size] = 0;
-        return true;
-//        return CRCUtil::checkCRC(String(input));
+        input[size - 1] = 0; // drop the last char, it's a CR and not useful for CRC calculation
+        return CRCUtil::checkCRC(String(input));
     }
     return false;
 }
@@ -113,26 +113,26 @@ bool Inverter::readResponse()
  */
 void Inverter::queryStatus()
 {
-   sendCommand("QPIGS");
+    sendCommand("QPIGS");
 }
 
 /**
  * Parse the inverter's response to a status request.
  *
- * Example: "(231.0 49.9 222.2 51.0 1800 1810 050 400 12.11 005 090 123 0003 430.1 12.22 11 22 33 99 00044 2"
+ * Example: (235.3 49.9 229.9 49.9 1800 1810 050 348 25.10 000 085 0040 00.0 117.4 00.00 00000 00010110 00 00 00000 110V�
  */
 void Inverter::parseStatusResponse(char *input)
 {
     if (input[0] != '(' || strlen(input) < 10 || strchr(input, ' ') == NULL) {
         Logger::info("unable to parse '%s", input);
     }
+    input++; // skip the (
 
     char *token = strtok(input, " ");
     if (token != NULL) {
         uint16_t batteryChargeCurrent;
         uint16_t batteryDischargeCurrent;
 
-        token++; // skip the "("
         gridVoltage = atof(token);
         processFloat(&gridFrequency);
         processFloat(&outVoltage);
@@ -221,7 +221,7 @@ String Inverter::toJSON()
     battery["voltage"] = batteryVoltage;
     battery["voltageSCC"] = batteryVoltageSCC;
     battery["current"] = batteryCurrent;
-    battery["power"]= batteryPower;
+    battery["power"] = batteryPower;
     battery["soc"] = batterySOC;
 
     JsonObject pv = jsonDoc.createNestedObject("pv");
@@ -248,7 +248,8 @@ String Inverter::toJSON()
  * Calculate the maximum available solar power.
  * The goal is to use only PV input, no battery and no grid power.
  */
-void Inverter::calculateMaximumSolarPower() {
+void Inverter::calculateMaximumSolarPower()
+{
     if (outPowerActive > pvChargingPower) {
         maxSolarPower = pvChargingPower;
     } else {
@@ -261,14 +262,16 @@ void Inverter::calculateMaximumSolarPower() {
 /**
  * Return the calculated maximum power to restrict power input to PV (in Watt)
  */
-uint16_t Inverter::getMaximumSolarPower() {
+uint16_t Inverter::getMaximumSolarPower()
+{
     return maxSolarPower;
 }
 
 /**
  * Get the maximum applicable solar current in 0.1A
  */
-uint16_t Inverter::getMaximumSolarCurrent() {
+uint16_t Inverter::getMaximumSolarCurrent()
+{
     return getMaximumSolarPower() * 10 / (outVoltage > 0 ? outVoltage : 230);
 }
 
