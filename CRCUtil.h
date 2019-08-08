@@ -20,10 +20,10 @@ public:
     static String getCRC(String command);
     static bool checkCRC(String resultValue);
     static String toHexString(String s);
-    static int caluCRC(String pByte);
+    static int calcCRC(String pByte);
 
 private:
-    static char crc_tb[];
+    static char16_t crc_tb[];
     static byte byteBuf[];
 };
 
