@@ -16,6 +16,7 @@ void setup() {
 	Logger::init();
 	Logger::info("Starting solar monitor...");
 
+	Config::init();
     Station::getInstance()->init();
     WebServer::getInstance()->init();
 	Inverter::getInstance()->init();

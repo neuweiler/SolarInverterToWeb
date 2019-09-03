@@ -13,9 +13,7 @@
 #include <FS.h>
 #include "Logger.h"
 #include "Inverter.h"
-
-#define AP_SSID "solar"
-#define AP_PASSWORD "inverter"
+#include "Config.h"
 
 class WebServer : public RequestHandler {
 public:
@@ -25,6 +23,7 @@ public:
     bool canHandle(HTTPMethod requestMethod, String requestUri) override;
     bool handle(ESP8266WebServer &server, HTTPMethod requestMethod, String requestUri) override;
     void handleFileList();
+    void handleConfigFileUpload();
 
 private:
 	WebServer();
@@ -32,6 +31,7 @@ private:
 	void operator=(WebServer const&);
 
 	ESP8266WebServer *server;
+	File fsUploadFile;
 };
 
 #endif /* WEBSERVER_H_ */

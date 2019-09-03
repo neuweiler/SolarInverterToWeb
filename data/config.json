@@ -1,0 +1,45 @@
+{
+  "inverter": {
+    "interval": 300,
+    "pv": {
+      "power": {
+        "initial": 1000,
+        "tolerance": 100,
+        "min": 400,
+        "max": 3000,
+        "adjustmentStep": 25
+      },
+      "voltage": {
+        "min": 320.0,
+        "max": 325.0
+      }
+    },
+    "battery": {
+      "dischargeCurrent": {
+        "max": 4
+      }
+    },
+    "bus": {
+      "voltage": {
+        "min": 390
+      }
+    }
+  },
+  "station": {
+    "ssid": "GEVCU",
+    "password": "verysecret",
+    "interval": {
+      "update": 2000,
+      "reconnect": 15000
+    },
+    "request": {
+      "consumerOutputAsCurrent": true,
+      "prefix": "http://192.168.3.10/?maximumSolarCurrent=",
+      "postfix": ""
+    }
+  },
+  "server": {
+    "ssid": "solar",
+    "password": "inverter"
+  }
+}

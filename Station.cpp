@@ -27,6 +27,7 @@ Station::Station()
     connectionError = 0;
     apConnected = false;
     stationConnected = false;
+    oldOutput = 0;
 }
 
 Station::~Station()
@@ -53,8 +54,8 @@ void Station::init()
     WiFi.persistent(false); // prevent flash memory wear ! (https://github.com/esp8266/Arduino/issues/1054)
     WiFi.mode(WIFI_AP_STA); // set as AP and as client
     WiFi.setAutoReconnect(false); // auto-reconnect tries every 1sec, messes up soft-ap (can't connect)
-    WiFi.begin(STATION_SSID, STATION_PASSWORD);
-    Logger::info("started WiFi Station for SSID %s", STATION_SSID);
+    WiFi.begin(Config::stationSsid.c_str(), Config::stationPassword.c_str());
+    Logger::info("started WiFi Station for SSID %s", Config::stationSsid.c_str());
 }
 
 /**
@@ -62,7 +63,7 @@ void Station::init()
  */
 void Station::loop()
 {
-    if (millis() - timestamp < 2000) {
+    if (millis() - timestamp < Config::stationUpdateInterval) {
         return;
     }
 
@@ -88,9 +89,9 @@ void Station::checkConnection()
     } else {
         stationConnected = false;
         // we try to (re)establish connection every 15sec, this allows softAP to work (although it gets blocked for 1-2sec)
-        if (millis() - lastConnectionAttempt > 15000) {
-            Logger::info("attempting to (re)connect to %s", STATION_SSID);
-            WiFi.begin(STATION_SSID, STATION_PASSWORD);
+        if (millis() - lastConnectionAttempt > Config::stationReconnectInterval) {
+            Logger::info("attempting to (re)connect to %s", Config::stationSsid.c_str());
+            WiFi.begin(Config::stationSsid.c_str(), Config::stationPassword.c_str());
             lastConnectionAttempt = millis();
         }
     }
@@ -106,11 +107,20 @@ void Station::checkConnection()
  */
 void Station::sendUpdate()
 {
+    Inverter *inverter = Inverter::getInstance();
+    inverter->calculateMaximumSolarPower();
+    uint16_t maxOutput = (Config::consumerOutputAsCurrent ? inverter->getMaximumSolarCurrent() : inverter->getMaximumSolarPower());
+    if (oldOutput == maxOutput) {
+        return;
+    }
+    oldOutput = maxOutput;
+
     HTTPClient http;
     String requestUrl;
 
-    requestUrl.concat(BASE_URL);
-    requestUrl.concat(Inverter::getInstance()->getMaximumSolarCurrent());
+    requestUrl.concat(Config::stationRequestPrefix);
+    requestUrl.concat(maxOutput);
+    requestUrl.concat(Config::stationRequestPostfix);
     http.begin(requestUrl);
 
     Logger::debug("sending request %s", requestUrl.c_str());

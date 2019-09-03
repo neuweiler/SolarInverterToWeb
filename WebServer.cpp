@@ -33,15 +33,13 @@ WebServer* WebServer::getInstance()
  */
 void WebServer::init()
 {
-    SPIFFS.begin();
-
     WiFi.persistent(false); // prevent flash memory wear ! (https://github.com/esp8266/Arduino/issues/1054)
     WiFi.hostname("solar");
     WiFi.mode(WIFI_AP_STA);
-    WiFi.softAP(AP_SSID, AP_PASSWORD);
-    Logger::info("started WiFi AP %s on ip %s", AP_SSID, WiFi.softAPIP().toString().c_str());
+    WiFi.softAP(Config::serverSsid.c_str(), Config::serverPassword.c_str());
+    Logger::info("started WiFi AP %s on ip %s", Config::serverSsid.c_str(), WiFi.softAPIP().toString().c_str());
 
-    MDNS.begin("solar");
+    MDNS.begin(Config::serverSsid.c_str());
 
     server->addHandler(this);
     server->serveStatic("/", SPIFFS, "/");
@@ -66,6 +64,9 @@ bool WebServer::canHandle(HTTPMethod requestMethod, String requestUri)
     if (requestMethod == HTTP_GET && (requestUri.equals("/data") || requestUri.equals("/list"))) {
         return true;
     }
+    if (requestMethod == HTTP_POST && requestUri.equals(Config::CONFIG_FILE)) {
+        return true;
+    }
     return false;
 }
 
@@ -79,6 +80,8 @@ bool WebServer::handle(ESP8266WebServer &server, HTTPMethod requestMethod, Strin
             server.send(200, "application/json", Inverter::getInstance()->toJSON());
         else if (requestUri.equals("/list"))
             handleFileList();
+        else if (requestUri.equals(Config::CONFIG_FILE) && requestMethod == HTTP_POST)
+            handleConfigFileUpload();
         return true;
     }
     return false;
@@ -106,4 +109,27 @@ void WebServer::handleFileList()
     }
     output += "]";
     server->send(200, "text/json", output);
+}
+
+/**
+ * Receive a new version of the config file.
+ */
+void WebServer::handleConfigFileUpload()
+{
+    if (!server->uri().equals(Config::CONFIG_FILE)) {
+      return;
+    }
+
+    HTTPUpload& upload = server->upload();
+    if (upload.status == UPLOAD_FILE_START) {
+      fsUploadFile = SPIFFS.open(Config::CONFIG_FILE, "w");
+    } else if (upload.status == UPLOAD_FILE_WRITE) {
+      if (fsUploadFile) {
+        fsUploadFile.write(upload.buf, upload.currentSize);
+      }
+    } else if (upload.status == UPLOAD_FILE_END) {
+      if (fsUploadFile) {
+        fsUploadFile.close();
+      }
+    }
 }

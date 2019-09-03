@@ -15,10 +15,6 @@
 #include "Logger.h"
 #include "Inverter.h"
 
-#define STATION_SSID "GEVCU"
-#define STATION_PASSWORD "verysecret"
-#define BASE_URL "http://192.168.3.10/?maximumSolarCurrent="
-
 #define LED_STATION D5
 #define LED_AP D6
 
@@ -40,6 +36,7 @@ private:
     uint32_t lastConnectionAttempt;
     uint8_t connectionError;
     bool apConnected, stationConnected;
+    uint16_t oldOutput;
 };
 
 #endif /* STATION_H_ */
