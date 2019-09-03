@@ -44,12 +44,7 @@
 		<link>
 			<name>libraries/ArduinoJson</name>
 			<type>2</type>
-			<locationURI>ECLIPSE_HOME/arduinoPlugin/libraries/ArduinoJson/6.11.2</locationURI>
-		</link>
-		<link>
-			<name>libraries/ArduinoOTA</name>
-			<type>2</type>
-			<locationURI>ECLIPSE_HOME/arduinoPlugin/packages/esp8266/hardware/esp8266/2.4.2/libraries/ArduinoOTA</locationURI>
+			<location>/Users/michaeln/Documents/Arduino/libraries/ArduinoJson</location>
 		</link>
 		<link>
 			<name>libraries/ESP8266HTTPClient</name>
@@ -70,11 +65,6 @@
 			<name>libraries/ESP8266mDNS</name>
 			<type>2</type>
 			<locationURI>ECLIPSE_HOME/arduinoPlugin/packages/esp8266/hardware/esp8266/2.4.2/libraries/ESP8266mDNS</locationURI>
-		</link>
-		<link>
-			<name>libraries/Ethernet</name>
-			<type>2</type>
-			<locationURI>ECLIPSE_HOME/arduinoPlugin/packages/esp8266/hardware/esp8266/2.4.2/libraries/Ethernet</locationURI>
 		</link>
 		<link>
 			<name>libraries/SD</name>

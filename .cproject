@@ -3,9 +3,9 @@
     	
     <storageModule moduleId="org.eclipse.cdt.core.settings">
         		
-        <cconfiguration id="io.sloeber.core.toolChain.release.1356880323">
+        <cconfiguration id="io.sloeber.core.toolChain.release.78488413">
             			
-            <storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="io.sloeber.core.toolChain.release.1356880323" moduleId="org.eclipse.cdt.core.settings" name="Release">
+            <storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="io.sloeber.core.toolChain.release.78488413" moduleId="org.eclipse.cdt.core.settings" name="Release">
                 				
                 <externalSettings/>
                 				
@@ -25,23 +25,27 @@
             			
             <storageModule moduleId="cdtBuildSystem" version="4.0.0">
                 				
-                <configuration artifactName="${ProjName}" buildProperties="" description="" id="io.sloeber.core.toolChain.release.1356880323" name="Release" parent="org.eclipse.cdt.build.core.emptycfg">
+                <configuration artifactName="${ProjName}" buildProperties="" description="" id="io.sloeber.core.toolChain.release.78488413" name="Release" parent="org.eclipse.cdt.build.core.emptycfg">
                     					
-                    <folderInfo id="io.sloeber.core.toolChain.release.1356880323.782278449" name="/" resourcePath="">
+                    <folderInfo id="io.sloeber.core.toolChain.release.78488413.1086919213" name="/" resourcePath="">
                         						
-                        <toolChain id="io.sloeber.core.toolChain.release.811173976" name="Arduino Toolchain (Sloeber edition)" superClass="io.sloeber.core.toolChain.release">
+                        <toolChain id="io.sloeber.core.toolChain.release.1550628604" name="Arduino Toolchain (Sloeber edition)" superClass="io.sloeber.core.toolChain.release">
                             							
-                            <targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="io.sloeber.targetplatform.1051512777" name="Arduino Target" osList="all" superClass="io.sloeber.targetplatform"/>
+                            <targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="io.sloeber.targetplatform.1649527696" name="Arduino Target" osList="all" superClass="io.sloeber.targetplatform"/>
                             							
-                            <builder buildPath="${workspace_loc:/SolarInverterToWeb}/Release" id="io.sloeber.sketch.builder.1755470259" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Arduino sketch builder" superClass="io.sloeber.sketch.builder"/>
+                            <builder buildPath="${workspace_loc:/SolarInverterToWeb}/Release" id="io.sloeber.sketch.builder.1088027850" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Arduino sketch builder" superClass="io.sloeber.sketch.builder"/>
                             							
-                            <tool id="io.sloeber.tool.sketch.compiler.cpp.142594770" name="Arduino C++ Compiler" superClass="io.sloeber.tool.sketch.compiler.cpp">
+                            <tool id="io.sloeber.tool.sketch.compiler.cpp.235723190" name="Arduino C++ Compiler" superClass="io.sloeber.tool.sketch.compiler.cpp">
                                 								
-                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="io.sloeber.compiler.cpp.sketch.option.incpath.889054267" name="Include Paths (-I)" superClass="io.sloeber.compiler.cpp.sketch.option.incpath" valueType="includePath">
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="io.sloeber.compiler.cpp.sketch.option.incpath.1777410107" name="Include Paths (-I)" superClass="io.sloeber.compiler.cpp.sketch.option.incpath" valueType="includePath">
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/core/core}&quot;"/>
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/core/variant}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/ArduinoJson/src}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/ESP8266HTTPClient/src}&quot;"/>
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/ESP8266WebServer/src}&quot;"/>
                                     									
@@ -51,29 +55,25 @@
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/SPI}&quot;"/>
                                     									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/ArduinoJson/src}&quot;"/>
-                                    									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/ESP8266HTTPClient/src}&quot;"/>
-                                    									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/ArduinoOTA}&quot;"/>
-                                    									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/ESP8266mDNS}&quot;"/>
-                                    									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/Ethernet/src}&quot;"/>
                                     								
                                 </option>
                                 								
-                                <inputType id="io.sloeber.compiler.cpp.sketch.input.821379888" name="CPP source files" superClass="io.sloeber.compiler.cpp.sketch.input"/>
+                                <inputType id="io.sloeber.compiler.cpp.sketch.input.1786935332" name="CPP source files" superClass="io.sloeber.compiler.cpp.sketch.input"/>
                                 							
                             </tool>
                             							
-                            <tool id="io.sloeber.tool.compiler.c.2028766448" name="Arduino C Compiler" superClass="io.sloeber.tool.compiler.c">
+                            <tool id="io.sloeber.tool.compiler.c.2032702607" name="Arduino C Compiler" superClass="io.sloeber.tool.compiler.c">
                                 								
-                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="io.sloeber.compiler.c.sketch.option.incpath.577707914" name="Include Paths (-I)" superClass="io.sloeber.compiler.c.sketch.option.incpath" valueType="includePath">
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="io.sloeber.compiler.c.sketch.option.incpath.1084234094" name="Include Paths (-I)" superClass="io.sloeber.compiler.c.sketch.option.incpath" valueType="includePath">
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/core/core}&quot;"/>
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/core/variant}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/ArduinoJson/src}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/ESP8266HTTPClient/src}&quot;"/>
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/ESP8266WebServer/src}&quot;"/>
                                     									
@@ -83,29 +83,25 @@
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/SPI}&quot;"/>
                                     									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/ArduinoJson/src}&quot;"/>
-                                    									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/ESP8266HTTPClient/src}&quot;"/>
-                                    									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/ArduinoOTA}&quot;"/>
-                                    									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/ESP8266mDNS}&quot;"/>
-                                    									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/Ethernet/src}&quot;"/>
                                     								
                                 </option>
                                 								
-                                <inputType id="io.sloeber.compiler.c.sketch.input.274727756" name="C Source Files" superClass="io.sloeber.compiler.c.sketch.input"/>
+                                <inputType id="io.sloeber.compiler.c.sketch.input.1976935355" name="C Source Files" superClass="io.sloeber.compiler.c.sketch.input"/>
                                 							
                             </tool>
                             							
-                            <tool id="io.sloeber.tool.sketch.compiler.s.2018185930" name="Arduino Assembler" superClass="io.sloeber.tool.sketch.compiler.s">
+                            <tool id="io.sloeber.tool.sketch.compiler.s.1420658384" name="Arduino Assembler" superClass="io.sloeber.tool.sketch.compiler.s">
                                 								
-                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="io.sloeber.compiler.asm.sketch.option.incpath.1177149587" name="Include Paths (-I)" superClass="io.sloeber.compiler.asm.sketch.option.incpath" valueType="includePath">
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="io.sloeber.compiler.asm.sketch.option.incpath.1075277715" name="Include Paths (-I)" superClass="io.sloeber.compiler.asm.sketch.option.incpath" valueType="includePath">
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/core/core}&quot;"/>
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/core/variant}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/ArduinoJson/src}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/ESP8266HTTPClient/src}&quot;"/>
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/ESP8266WebServer/src}&quot;"/>
                                     									
@@ -115,29 +111,21 @@
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/SPI}&quot;"/>
                                     									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/ArduinoJson/src}&quot;"/>
-                                    									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/ESP8266HTTPClient/src}&quot;"/>
-                                    									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/ArduinoOTA}&quot;"/>
-                                    									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/ESP8266mDNS}&quot;"/>
-                                    									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/Ethernet/src}&quot;"/>
                                     								
                                 </option>
                                 								
-                                <inputType id="io.sloeber.compiler.S.sketch.input.1096440820" name="Assembly source files" superClass="io.sloeber.compiler.S.sketch.input"/>
+                                <inputType id="io.sloeber.compiler.S.sketch.input.1359452640" name="Assembly source files" superClass="io.sloeber.compiler.S.sketch.input"/>
                                 							
                             </tool>
                             							
-                            <tool id="io.sloeber.tool.ar.1537903834" name="Arduino archiver" superClass="io.sloeber.tool.ar"/>
+                            <tool id="io.sloeber.tool.ar.1431820633" name="Arduino archiver" superClass="io.sloeber.tool.ar"/>
                             							
-                            <tool id="io.sloeber.tool.combine.1978064444" name="Arduino combiner" superClass="io.sloeber.tool.combine"/>
+                            <tool id="io.sloeber.tool.combine.1344019198" name="Arduino combiner" superClass="io.sloeber.tool.combine"/>
                             							
-                            <tool id="io.sloeber.tool.objcopy.eep.868735425" name="Arduino tool Create eeprom" superClass="io.sloeber.tool.objcopy.eep"/>
+                            <tool id="io.sloeber.tool.objcopy.eep.473537166" name="Arduino tool objcopy command" superClass="io.sloeber.tool.objcopy.eep"/>
                             							
-                            <tool id="io.sloeber.tool.size.1597094075" name="Arduino tool Print Size" superClass="io.sloeber.tool.size"/>
+                            <tool id="io.sloeber.tool.size.1418510314" name="Arduino tool Print Size" superClass="io.sloeber.tool.size"/>
                             						
                         </toolChain>
                         					
@@ -145,7 +133,7 @@
                     					
                     <sourceEntries>
                         						
-                        <entry excluding="libraries/ArduinoJson/third-party|libraries/ArduinoJson/scripts|libraries/ArduinoJson/test|libraries/ArduinoJson/fuzzing" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+                        <entry excluding="libraries/ArduinoJson/scripts|libraries/ArduinoJson/fuzzing|libraries/?*/**/?xamples/**|libraries/?*/**/?xtras/**|libraries/?*/**/test*/**|libraries/?*/**/third-party/**|libraries/**/._*|libraries/?*/utility/*/*" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
                         					
                     </sourceEntries>
                     				
@@ -161,7 +149,7 @@
     	
     <storageModule moduleId="cdtBuildSystem" version="4.0.0">
         		
-        <project id="SolarInverterToWeb.null.374462252" name="SolarInverterToWeb"/>
+        <project id="SolarInverterToWeb.null.1578708003" name="SolarInverterToWeb"/>
         	
     </storageModule>
     	
