@@ -9,6 +9,8 @@
 
 #include "WebServer.h"
 
+#define DASHBOARD_FILE "dashboard.json"
+
 WebServer::WebServer()
 {
     server = new ESP8266WebServer(80);
@@ -80,7 +82,7 @@ bool WebServer::handle(ESP8266WebServer &server, HTTPMethod requestMethod, Strin
             server.send(200, "application/json", Inverter::getInstance()->toJSON());
         else if (requestUri.equals("/list"))
             handleFileList();
-        else if (requestUri.equals(Config::CONFIG_FILE) && requestMethod == HTTP_POST)
+        else if ((requestUri.equals(Config::CONFIG_FILE) || requestUri.equals(DASHBOARD_FILE)) && requestMethod == HTTP_POST)
             handleConfigFileUpload();
         return true;
     }
@@ -116,13 +118,13 @@ void WebServer::handleFileList()
  */
 void WebServer::handleConfigFileUpload()
 {
-    if (!server->uri().equals(Config::CONFIG_FILE)) {
+    if (!server->uri().equals(Config::CONFIG_FILE) && !server->uri().equals(DASHBOARD_FILE)) {
       return;
     }
 
     HTTPUpload& upload = server->upload();
     if (upload.status == UPLOAD_FILE_START) {
-      fsUploadFile = SPIFFS.open(Config::CONFIG_FILE, "w");
+      fsUploadFile = SPIFFS.open(upload.filename, "w");
     } else if (upload.status == UPLOAD_FILE_WRITE) {
       if (fsUploadFile) {
         fsUploadFile.write(upload.buf, upload.currentSize);
