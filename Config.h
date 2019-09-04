@@ -45,6 +45,8 @@ public:
     static String serverSsid;
     static String serverPassword;
 
+private:
+    static void printConfig();
 };
 
 #endif /* CONFIG_H_ */

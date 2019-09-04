@@ -28,18 +28,19 @@ String Config::stationRequestPostfix;
 String Config::serverSsid;
 String Config::serverPassword;
 
-void Config::init() {
+void Config::init()
+{
     SPIFFS.begin();
 
     File file = SPIFFS.open(CONFIG_FILE, "r");
     if (!file) {
-      Logger::error("Failed to open %s", CONFIG_FILE);
+        Logger::error("Failed to open %s", CONFIG_FILE);
     }
 
-    StaticJsonDocument<512> doc;
+    StaticJsonDocument < 1024 > doc;
     DeserializationError error = deserializeJson(doc, file);
     if (error)
-      Logger::error("Failed to parse file, using default configuration");
+        Logger::error("Failed to parse file, using default configuration");
 
     inverterUpdateInterval = doc["inverter"]["interval"] | 300;
     initialMaxSolarPower = doc["inverter"]["pv"]["power"]["initial"] | 1000;
@@ -64,5 +65,31 @@ void Config::init() {
     serverPassword = String(doc["server"]["password"] | "inverter");
 
     file.close();
+
+    printConfig();
 }
 
+void Config::printConfig()
+{
+    Logger::console("inverterUpdateInterval : %d", inverterUpdateInterval);
+    Logger::console("initialMaxSolarPower: %d", initialMaxSolarPower);
+    Logger::console("pvOutPowerTolerance: %d", pvOutPowerTolerance);
+    Logger::console("minSolarPower: %d", minSolarPower);
+    Logger::console("maxSolarPower: %d", maxSolarPower);
+    Logger::console("powerAdjustment: %d", powerAdjustment);
+    Logger::console("minPvVoltage: %f", minPvVoltage);
+    Logger::console("maxPvVoltage: %f", maxPvVoltage);
+    Logger::console("maxBatteryDischargeCurrent: %d", maxBatteryDischargeCurrent);
+    Logger::console("minBusVoltage: %d", minBusVoltage);
+
+    Logger::console("stationSsid: %s", stationSsid.c_str());
+    Logger::console("stationPassword: %s", stationPassword.c_str());
+    Logger::console("stationUpdateInterval: %d", stationUpdateInterval);
+    Logger::console("stationReconnectInterval: %d", stationReconnectInterval);
+    Logger::console("consumerOutputAsCurrent: %d", consumerOutputAsCurrent);
+    Logger::console("stationRequestPrefix: %s", stationRequestPrefix.c_str());
+    Logger::console("stationRequestPostfix: %s", stationRequestPostfix.c_str());
+
+    Logger::console("serverSsid: %s", serverSsid.c_str());
+    Logger::console("serverPassword: %s", serverPassword.c_str());
+}
