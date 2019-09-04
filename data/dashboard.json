@@ -8,13 +8,15 @@
 			"width": 1,
 			"row": {
 				"3": 1,
-				"4": 7,
-				"5": 7
+				"4": 9,
+				"5": 7,
+				"8": 7
 			},
 			"col": {
 				"3": 2,
 				"4": 3,
-				"5": 3
+				"5": 3,
+				"8": 3
 			},
 			"col_width": 1,
 			"widgets": [
@@ -26,6 +28,16 @@
 						"units": "Volt",
 						"min_value": 0,
 						"max_value": "28"
+					}
+				},
+				{
+					"type": "gauge",
+					"settings": {
+						"title": "Power",
+						"value": "datasources[\"solar\"][\"battery\"][\"power\"]",
+						"units": "Watt",
+						"min_value": "-3000",
+						"max_value": "3000"
 					}
 				},
 				{
@@ -42,13 +54,12 @@
 					}
 				},
 				{
-					"type": "gauge",
+					"type": "text_widget",
 					"settings": {
-						"title": "Power",
-						"value": "datasources[\"solar\"][\"battery\"][\"power\"]",
-						"units": "Watt",
-						"min_value": "-3000",
-						"max_value": "3000"
+						"title": "Charge Source",
+						"size": "regular",
+						"value": "datasources[\"solar\"][\"battery\"][\"source\"]",
+						"animate": false
 					}
 				},
 				{
@@ -60,6 +71,24 @@
 						"min_value": "0",
 						"max_value": "100"
 					}
+				},
+				{
+					"type": "text_widget",
+					"settings": {
+						"title": "VSCC",
+						"size": "regular",
+						"value": "datasources[\"solar\"][\"battery\"][\"voltageSCC\"]",
+						"animate": false
+					}
+				},
+				{
+					"type": "text_widget",
+					"settings": {
+						"title": "Float Charging",
+						"size": "regular",
+						"value": "datasources[\"solar\"][\"battery\"][\"floatCharge\"]",
+						"animate": false
+					}
 				}
 			]
 		},
@@ -68,13 +97,15 @@
 			"width": 1,
 			"row": {
 				"3": 1,
-				"4": 7,
-				"5": 7
+				"4": 9,
+				"5": 7,
+				"9": 7
 			},
 			"col": {
 				"3": 3,
 				"4": 4,
-				"5": 4
+				"5": 4,
+				"9": 4
 			},
 			"col_width": 1,
 			"widgets": [
@@ -89,6 +120,16 @@
 					}
 				},
 				{
+					"type": "gauge",
+					"settings": {
+						"title": "Power Active",
+						"value": "datasources[\"solar\"][\"out\"][\"powerActive\"]",
+						"units": "Watt",
+						"min_value": 0,
+						"max_value": "3000"
+					}
+				},
+				{
 					"type": "text_widget",
 					"settings": {
 						"title": "Load",
@@ -98,17 +139,26 @@
 						],
 						"sparkline": true,
 						"animate": false,
-						"units": "A"
+						"units": "%"
 					}
 				},
 				{
-					"type": "gauge",
+					"type": "text_widget",
 					"settings": {
-						"title": "Power",
-						"value": "datasources[\"solar\"][\"out\"][\"powerActive\"]",
-						"units": "Watt",
-						"min_value": 0,
-						"max_value": "3000"
+						"title": "Load Source",
+						"size": "regular",
+						"value": "datasources[\"solar\"][\"out\"][\"source\"]",
+						"animate": false
+					}
+				},
+				{
+					"type": "text_widget",
+					"settings": {
+						"title": "Power Apparent",
+						"size": "regular",
+						"value": "datasources[\"solar\"][\"out\"][\"powerApparent\"]",
+						"animate": false,
+						"units": "VA"
 					}
 				},
 				{
@@ -128,13 +178,15 @@
 			"width": 1,
 			"row": {
 				"3": 5,
-				"4": 7,
-				"5": 7
+				"4": 9,
+				"5": 7,
+				"9": 7
 			},
 			"col": {
 				"3": 1,
 				"4": 2,
-				"5": 2
+				"5": 2,
+				"9": 2
 			},
 			"col_width": 1,
 			"widgets": [
@@ -146,6 +198,16 @@
 						"units": "Volt",
 						"min_value": 0,
 						"max_value": "500"
+					}
+				},
+				{
+					"type": "gauge",
+					"settings": {
+						"title": "Power",
+						"value": "datasources[\"solar\"][\"pv\"][\"power\"]",
+						"units": "Watt",
+						"min_value": 0,
+						"max_value": "3000"
 					}
 				},
 				{
@@ -162,13 +224,51 @@
 					}
 				},
 				{
+					"type": "text_widget",
+					"settings": {
+						"title": "Maximum Power",
+						"size": "regular",
+						"value": "datasources[\"solar\"][\"pv\"][\"maxPower\"]",
+						"animate": false
+					}
+				}
+			]
+		},
+		{
+			"title": "AC Input",
+			"width": 1,
+			"row": {
+				"3": 21,
+				"4": 29,
+				"5": 7,
+				"9": 7
+			},
+			"col": {
+				"3": 3,
+				"4": 2,
+				"5": 1,
+				"9": 1
+			},
+			"col_width": 1,
+			"widgets": [
+				{
 					"type": "gauge",
 					"settings": {
-						"title": "Power",
-						"value": "datasources[\"solar\"][\"pv\"][\"power\"]",
-						"units": "Watt",
+						"title": "Voltage",
+						"value": "datasources[\"solar\"][\"grid\"][\"voltage\"]",
 						"min_value": 0,
-						"max_value": "3000"
+						"max_value": "250"
+					}
+				},
+				{
+					"type": "text_widget",
+					"settings": {
+						"title": "Frequency",
+						"size": "regular",
+						"value": "datasources[\"solar\"][\"grid\"][\"frequency\"]",
+						"sparkline": false,
+						"animate": false,
+						"units": "Hz"
 					}
 				}
 			]
@@ -178,13 +278,15 @@
 			"width": 1,
 			"row": {
 				"3": 23,
-				"4": 17,
-				"5": 7
+				"4": 9,
+				"5": 7,
+				"9": 7
 			},
 			"col": {
 				"3": 1,
 				"4": 1,
-				"5": 5
+				"5": 5,
+				"9": 5
 			},
 			"col_width": 1,
 			"widgets": [
@@ -218,42 +320,32 @@
 						"animate": false,
 						"units": "mW"
 					}
-				}
-			]
-		},
-		{
-			"title": "AC Input",
-			"width": 1,
-			"row": {
-				"3": 21,
-				"4": 7,
-				"5": 7
-			},
-			"col": {
-				"3": 3,
-				"4": 1,
-				"5": 1
-			},
-			"col_width": 1,
-			"widgets": [
+				},
 				{
-					"type": "gauge",
+					"type": "text_widget",
 					"settings": {
-						"title": "Voltage",
-						"value": "datasources[\"solar\"][\"grid\"][\"voltage\"]",
-						"min_value": 0,
-						"max_value": "250"
+						"title": "Mode",
+						"size": "regular",
+						"value": "datasources[\"solar\"][\"system\"][\"mode\"]",
+						"animate": false
 					}
 				},
 				{
 					"type": "text_widget",
 					"settings": {
-						"title": "Frequency",
+						"title": "Power Switch",
 						"size": "regular",
-						"value": "datasources[\"solar\"][\"grid\"][\"frequency\"]",
-						"sparkline": false,
-						"animate": false,
-						"units": "Hz"
+						"value": "datasources[\"solar\"][\"system\"][\"switch\"]",
+						"animate": false
+					}
+				},
+				{
+					"type": "text_widget",
+					"settings": {
+						"title": "Fault Code",
+						"size": "regular",
+						"value": "datasources[\"solar\"][\"system\"][\"faultCode\"]",
+						"animate": false
 					}
 				}
 			]
@@ -284,6 +376,14 @@
 						],
 						"include_legend": false,
 						"legend": "PV,Battery,AC Out"
+					}
+				},
+				{
+					"type": "text_widget",
+					"settings": {
+						"size": "regular",
+						"value": "datasources[\"solar\"][\"system\"][\"warning\"]",
+						"animate": false
 					}
 				}
 			]
