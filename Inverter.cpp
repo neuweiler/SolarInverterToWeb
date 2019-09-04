@@ -90,7 +90,7 @@ void Inverter::loop()
             break;
         case WARNING:
             parseWarningResponse(input);
-            queryMode = STATUS;
+            queryMode = MODE;
             break;
         }
     }
