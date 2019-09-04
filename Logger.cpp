@@ -9,6 +9,8 @@
 
 #define LOG_BUFFER_SIZE 160
 
+//#define Serial1 Serial
+
 Logger::LogLevel Logger::logLevel = Debug;
 bool Logger::debugging = true;
 char *Logger::msgBuffer = new char[LOG_BUFFER_SIZE];
