@@ -10,6 +10,7 @@
 #include "WebServer.h"
 
 #define DASHBOARD_FILE "dashboard.json"
+#define CONFIG_FILE "config.json"
 
 WebServer::WebServer()
 {
@@ -63,13 +64,23 @@ void WebServer::loop()
  */
 bool WebServer::canHandle(HTTPMethod requestMethod, String requestUri)
 {
+    if (Logger::isDebug())
+        Logger::debug("http request: %d, url: %s", requestMethod, requestUri.c_str());
+
     if (requestMethod == HTTP_GET && (requestUri.equals("/data") || requestUri.equals("/list"))) {
         return true;
     }
-    if (requestMethod == HTTP_POST && requestUri.equals(Config::CONFIG_FILE)) {
+    if (requestMethod == HTTP_POST && requestUri.equals("/upload")) {
         return true;
     }
     return false;
+}
+
+bool WebServer::canUpload(String requestUri) {
+    if (!canHandle(HTTP_POST, requestUri))
+        return false;
+
+    return true;
 }
 
 /**
@@ -77,16 +88,20 @@ bool WebServer::canHandle(HTTPMethod requestMethod, String requestUri)
  */
 bool WebServer::handle(ESP8266WebServer &server, HTTPMethod requestMethod, String requestUri)
 {
-    if (canHandle(requestMethod, requestUri)) {
-        if (requestUri.equals("/data"))
-            server.send(200, "application/json", Inverter::getInstance()->toJSON());
-        else if (requestUri.equals("/list"))
-            handleFileList();
-        else if ((requestUri.equals(Config::CONFIG_FILE) || requestUri.equals(DASHBOARD_FILE)) && requestMethod == HTTP_POST)
-            handleConfigFileUpload();
-        return true;
-    }
-    return false;
+    if (requestUri.equals("/data"))
+        server.send(200, "application/json", Inverter::getInstance()->toJSON());
+    else if (requestUri.equals("/list"))
+        handleFileList();
+    else if (requestUri.equals("/upload"))
+        server.send(200, "text/plain", "Upload successful");
+    else
+        return false;
+
+    return true;
+}
+
+void WebServer::upload(ESP8266WebServer& server, String requestUri, HTTPUpload& upload) {
+    handleFileUpload();
 }
 
 /**
@@ -116,22 +131,24 @@ void WebServer::handleFileList()
 /**
  * Receive a new version of the config file.
  */
-void WebServer::handleConfigFileUpload()
+void WebServer::handleFileUpload()
 {
-    if (!server->uri().equals(Config::CONFIG_FILE) && !server->uri().equals(DASHBOARD_FILE)) {
-      return;
+    HTTPUpload& upload = server->upload();
+
+    if (!upload.filename.equals(CONFIG_FILE) && !upload.filename.equals(DASHBOARD_FILE)) {
+        return;
     }
 
-    HTTPUpload& upload = server->upload();
     if (upload.status == UPLOAD_FILE_START) {
-      fsUploadFile = SPIFFS.open(upload.filename, "w");
+        fsUploadFile = SPIFFS.open("/" + upload.filename, "w");
     } else if (upload.status == UPLOAD_FILE_WRITE) {
-      if (fsUploadFile) {
-        fsUploadFile.write(upload.buf, upload.currentSize);
-      }
+        if (fsUploadFile) {
+            fsUploadFile.write(upload.buf, upload.currentSize);
+        }
     } else if (upload.status == UPLOAD_FILE_END) {
-      if (fsUploadFile) {
-        fsUploadFile.close();
-      }
+        if (fsUploadFile) {
+            fsUploadFile.close();
+        }
+        Config::load(); // re-load the config from new file
     }
 }
