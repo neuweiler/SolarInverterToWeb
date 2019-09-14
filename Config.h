@@ -17,11 +17,12 @@ class Config
 {
 public:
     static void init();
+    static void load();
 
     static const char *CONFIG_FILE;
 
     // Inverter
-    static uint16_t initialMaxSolarPower; // initial Power to start consumer with (in W)
+    static uint16_t initialSolarPower; // initial Power to start consumer with (in W)
     static uint16_t inverterUpdateInterval; // at which interval the next data is requested from inverter (in ms)
     static uint16_t pvOutPowerTolerance; // tolerance of higher out power against PV input (in W)
     static int16_t maxBatteryDischargeCurrent; // allowed discharge current before throttling down consumer power (in A)
@@ -31,13 +32,15 @@ public:
     static uint16_t powerAdjustment; // amount of power increased/decreased when adjusting consumer power (in W)
     static uint16_t minSolarPower; // minimum solar power to provide to the consumer (in W)
     static uint16_t maxSolarPower; // maximum solar power to provide to the consumer (in W)
+    static uint32_t cutoffRetryTime; // time until a retry is started after a power cutoff due to minSolarPower (in sec)
+    static uint8_t cutoffRetryMinBatterySoc; // minimum battery soc to try a restart after power cutoff (in %)
 
     // Station
     static String stationSsid;
     static String stationPassword;
     static uint16_t stationUpdateInterval; // at which interval the next update is sent to the consumer (in ms)
     static uint16_t stationReconnectInterval; // at which interval the next connection attempt to the station is made (in ms)
-    static bool consumerOutputAsCurrent; // if true the consumer output is sent in Amps, otherwise in Watts
+    static bool outputAsCurrent; // if true the consumer output is sent in Amps, otherwise in Watts
     static String stationRequestPrefix; // the prefix for the HTTP request to the station
     static String stationRequestPostfix; // the postfix for the HTTP request to the station
 
@@ -46,7 +49,7 @@ public:
     static String serverPassword;
 
 private:
-    static void printConfig();
+    static void print();
 };
 
 #endif /* CONFIG_H_ */

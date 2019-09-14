@@ -42,6 +42,7 @@ Inverter::Inverter()
 
     queryMode = STATUS;
     timestamp = 0;
+    cutoofTime = 0;
     maxSolarPower = 1000;
 }
 
@@ -67,7 +68,7 @@ void Inverter::init()
 
     timestamp = millis();
 
-    maxSolarPower = Config::initialMaxSolarPower;
+    maxSolarPower = Config::initialSolarPower;
 }
 
 /**
@@ -526,7 +527,13 @@ void Inverter::calculateMaximumSolarPower()
         if (maxSolarPower >= Config::powerAdjustment && maxSolarPower > Config::minSolarPower) {
             maxSolarPower -= Config::powerAdjustment;
         } else {
+            cutoofTime = (cutoofTime > 0 ? cutoofTime : millis());
             maxSolarPower = 0;
+        }
+    } else if (maxSolarPower == 0 && cutoofTime > 0) {
+        if ((cutoofTime + Config::cutoffRetryTime * 1000) < millis() && busVoltage > Config::minBusVoltage && batterySOC > Config::cutoffRetryMinBatterySoc) {
+            cutoofTime = 0;
+            maxSolarPower = Config::initialSolarPower;
         }
     } else if (pvVoltage > Config::maxPvVoltage) {
         if (maxSolarPower < Config::maxSolarPower - Config::powerAdjustment) {

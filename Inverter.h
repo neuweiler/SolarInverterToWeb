@@ -113,6 +113,7 @@ private:
 
     char input[INPUT_BUFFER_SIZE + 1];
     uint32_t timestamp;
+    uint32_t cutoofTime;
     uint16_t maxSolarPower;
 
     QueryMode queryMode;

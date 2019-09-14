@@ -109,7 +109,7 @@ void Station::sendUpdate()
 {
     Inverter *inverter = Inverter::getInstance();
     inverter->calculateMaximumSolarPower();
-    uint16_t maxOutput = (Config::consumerOutputAsCurrent ? inverter->getMaximumSolarCurrent() : inverter->getMaximumSolarPower());
+    uint16_t maxOutput = (Config::outputAsCurrent ? inverter->getMaximumSolarCurrent() : inverter->getMaximumSolarPower());
     if (oldOutput == maxOutput) {
         return;
     }
