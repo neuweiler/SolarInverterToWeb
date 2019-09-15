@@ -10,8 +10,8 @@
         "adjustmentStep": 25
       },
       "voltage": {
-        "min": 330.0,
-        "max": 340.0
+        "min": 220.0,
+        "max": 230.0
       }
     },
     "battery": {
@@ -21,7 +21,7 @@
     },
     "bus": {
       "voltage": {
-        "min": 370
+        "min": 320
       }
     },
     "cutoffRetry" : {
