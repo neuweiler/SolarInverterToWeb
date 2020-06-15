@@ -38,7 +38,7 @@
     },
     "request": {
       "outputAsCurrent": true,
-      "prefix": "http://192.168.3.10/?maximumSolarCurrent=",
+      "prefix": "http://192.168.3.10/saveConfig?maximumSolarCurrent=",
       "postfix": ""
     }
   },

@@ -8,6 +8,8 @@
 #ifndef WEBSERVER_H_
 #define WEBSERVER_H_
 
+#define SPIFFS_MAX_OPEN_FILES 20
+
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
 #include <FS.h>
