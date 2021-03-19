@@ -51,19 +51,13 @@
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/ESP8266WiFi/src}&quot;"/>
                                     									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/SD/src}&quot;"/>
-                                    									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/SPI}&quot;"/>
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/ESP8266mDNS}&quot;"/>
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/ESP8266mDNS/src}&quot;"/>
                                     									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/SDFS/src}&quot;"/>
-                                    									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/SdFat/utility}&quot;"/>
-                                    									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/SdFat}&quot;"/>
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/WiFi/src}&quot;"/>
                                     								
                                 </option>
                                 								
@@ -87,19 +81,13 @@
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/ESP8266WiFi/src}&quot;"/>
                                     									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/SD/src}&quot;"/>
-                                    									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/SPI}&quot;"/>
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/ESP8266mDNS}&quot;"/>
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/ESP8266mDNS/src}&quot;"/>
                                     									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/SDFS/src}&quot;"/>
-                                    									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/SdFat/utility}&quot;"/>
-                                    									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/SdFat}&quot;"/>
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/WiFi/src}&quot;"/>
                                     								
                                 </option>
                                 								
@@ -123,19 +111,13 @@
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/ESP8266WiFi/src}&quot;"/>
                                     									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/SD/src}&quot;"/>
-                                    									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/SPI}&quot;"/>
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/ESP8266mDNS}&quot;"/>
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/ESP8266mDNS/src}&quot;"/>
                                     									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/SDFS/src}&quot;"/>
-                                    									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/SdFat/utility}&quot;"/>
-                                    									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/SdFat}&quot;"/>
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/WiFi/src}&quot;"/>
                                     								
                                 </option>
                                 								
