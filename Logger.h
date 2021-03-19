@@ -11,6 +11,8 @@
 
 #include <Arduino.h>
 
+#define LOG_BUFFER_SIZE 160
+
 class Logger
 {
 public:
@@ -22,21 +24,23 @@ public:
         Error = 3,
         Off = 4
     };
-    static void init();
-    static void debug(String, ...);
-    static void info(String, ...);
-    static void warn(String, ...);
-    static void error(String, ...);
-    static void console(String, ...);
-    static void setLoglevel(LogLevel);
-    static LogLevel getLogLevel();
-    static boolean isDebug();
+    void init();
+    void debug(String, ...);
+    void info(String, ...);
+    void warn(String, ...);
+    void error(String, ...);
+    void console(String, ...);
+    void setLoglevel(LogLevel);
+    LogLevel getLogLevel();
+    boolean isDebug();
 private:
-    static LogLevel logLevel;
-    static bool debugging;
-    static char *msgBuffer;
+    LogLevel logLevel;
+    bool debugging;
+    char *msgBuffer;
 
-    static void log(LogLevel, String format, va_list);
+    void log(LogLevel, String format, va_list);
 };
+
+extern Logger logger;
 
 #endif /* LOGGER_H_ */

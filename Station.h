@@ -21,14 +21,12 @@
 class Station
 {
 public:
-    static Station* getInstance();
+    Station();
+    virtual ~Station();
     void init();
     void loop();
 
 private:
-    Station();
-    virtual ~Station();
-    void operator=(Station const&);
     void sendUpdate();
     void checkConnection();
 
@@ -38,5 +36,7 @@ private:
     bool apConnected, stationConnected;
     uint16_t oldOutput;
 };
+
+extern Station station;
 
 #endif /* STATION_H_ */

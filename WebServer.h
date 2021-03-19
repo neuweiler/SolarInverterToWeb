@@ -19,7 +19,8 @@
 
 class WebServer : public RequestHandler {
 public:
-	static WebServer* getInstance();
+	WebServer();
+	virtual ~WebServer();
 	void init();
 	void loop();
     bool canHandle(HTTPMethod requestMethod, String requestUri) override;
@@ -30,12 +31,10 @@ public:
     void handleFileUpload();
 
 private:
-	WebServer();
-	virtual ~WebServer();
-	void operator=(WebServer const&);
-
 	ESP8266WebServer *server;
 	File fsUploadFile;
 };
+
+extern WebServer webServer;
 
 #endif /* WEBSERVER_H_ */

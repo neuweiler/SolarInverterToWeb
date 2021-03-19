@@ -23,15 +23,6 @@ WebServer::~WebServer()
 }
 
 /**
- * Get singleton instance
- */
-WebServer* WebServer::getInstance()
-{
-    static WebServer instance;
-    return &instance;
-}
-
-/**
  * Initialize the WiFi as soft AP and configure the web server.
  */
 void WebServer::init()
@@ -39,15 +30,15 @@ void WebServer::init()
     WiFi.persistent(false); // prevent flash memory wear ! (https://github.com/esp8266/Arduino/issues/1054)
     WiFi.hostname("solar");
     WiFi.mode(WIFI_AP_STA);
-    WiFi.softAP(Config::serverSsid.c_str(), Config::serverPassword.c_str());
-    Logger::info("started WiFi AP %s on ip %s", Config::serverSsid.c_str(), WiFi.softAPIP().toString().c_str());
+    WiFi.softAP(config.serverSsid.c_str(), config.serverPassword.c_str());
+    logger.info("started WiFi AP %s on ip %s", config.serverSsid.c_str(), WiFi.softAPIP().toString().c_str());
 
-    MDNS.begin(Config::serverSsid.c_str());
+    MDNS.begin(config.serverSsid.c_str());
 
     server->addHandler(this);
     server->serveStatic("/", SPIFFS, "/");
     server->begin();
-    Logger::info("started webserver");
+    logger.info("started webserver");
 }
 
 /**
@@ -64,8 +55,8 @@ void WebServer::loop()
  */
 bool WebServer::canHandle(HTTPMethod requestMethod, String requestUri)
 {
-    if (Logger::isDebug())
-        Logger::debug("http request: %d, url: %s", requestMethod, requestUri.c_str());
+    if (logger.isDebug())
+        logger.debug("http request: %d, url: %s", requestMethod, requestUri.c_str());
 
     if (requestMethod == HTTP_GET && (requestUri.equals("/data") || requestUri.equals("/list"))) {
         return true;
@@ -89,7 +80,7 @@ bool WebServer::canUpload(String requestUri) {
 bool WebServer::handle(ESP8266WebServer &server, HTTPMethod requestMethod, String requestUri)
 {
     if (requestUri.equals("/data"))
-        server.send(200, "application/json", Inverter::getInstance()->toJSON());
+        server.send(200, "application/json", inverter.toJSON());
     else if (requestUri.equals("/list"))
         handleFileList();
     else if (requestUri.equals("/upload"))
@@ -149,6 +140,9 @@ void WebServer::handleFileUpload()
         if (fsUploadFile) {
             fsUploadFile.close();
         }
-        Config::load(); // re-load the config from new file
+        config.load(); // re-load the config from new file
     }
 }
+
+WebServer webServer;
+

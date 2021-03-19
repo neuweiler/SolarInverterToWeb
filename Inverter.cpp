@@ -32,6 +32,7 @@ Inverter::Inverter()
     batteryVoltageSCC = 0;
     batteryCurrent = 0;
     batterySOC = 0;
+    batteryAh = 0;
     batteryPower = 0;
     pvCurrent = 0;
     pvVoltage = 0;
@@ -51,15 +52,6 @@ Inverter::~Inverter()
 }
 
 /**
- * Get singleton instance.
- */
-Inverter* Inverter::getInstance()
-{
-    static Inverter instance;
-    return &instance;
-}
-
-/**
  * Initialize the Inverter.
  */
 void Inverter::init()
@@ -68,7 +60,7 @@ void Inverter::init()
 
     timestamp = millis();
 
-    maxSolarPower = Config::initialSolarPower;
+    maxSolarPower = config.initialSolarPower;
 }
 
 /**
@@ -76,7 +68,7 @@ void Inverter::init()
  */
 void Inverter::loop()
 {
-    if (timestamp + Config::inverterUpdateInterval > millis())
+    if (timestamp + config.inverterUpdateInterval > millis())
         return;
 
     if (readResponse()) {
@@ -87,6 +79,7 @@ void Inverter::loop()
             break;
         case STATUS:
             parseStatusResponse(input);
+//            calculateSOC();
             queryMode = WARNING;
             break;
         case WARNING:
@@ -108,7 +101,7 @@ void Inverter::sendCommand(String command)
 {
     String crc = CRCUtil::getCRC(command);
 
-    Logger::info("sending command: %s", command.c_str());
+    logger.info("sending command: %s", command.c_str());
 
     Serial.print(command);
     Serial.print(crc);
@@ -154,7 +147,8 @@ void Inverter::sendQuery()
 void Inverter::parseModeResponse(char *input)
 {
     if (input[0] != '(' || strlen(input) < 2 || strstr(input, "(NAK") != NULL) {
-        Logger::info("unable to parse '%s", input);
+        logger.info("unable to parse '%s", input);
+        return;
     }
     input++; // skip the (
 
@@ -197,7 +191,8 @@ void Inverter::parseModeResponse(char *input)
 void Inverter::parseStatusResponse(char *input)
 {
     if (input[0] != '(' || strlen(input) < 10 || strchr(input, ' ') == NULL) {
-        Logger::info("unable to parse '%s", input);
+        logger.info("unable to parse '%s", input);
+        return;
     }
     input++; // skip the (
 
@@ -241,7 +236,8 @@ void Inverter::parseStatusResponse(char *input)
 void Inverter::parseWarningResponse(char *input)
 {
     if (input[0] != '(' || strlen(input) < 2 || strstr(input, "(NAK") != NULL) {
-        Logger::info("unable to parse '%s", input);
+        logger.info("unable to parse '%s", input);
+        return;
     }
     input++; // skip the (
 
@@ -520,26 +516,26 @@ void Inverter::evalWarning(JsonArray &array)
  */
 void Inverter::calculateMaximumSolarPower()
 {
-    if (outPowerActive > pvChargingPower + Config::pvOutPowerTolerance ||
-            batteryCurrent < Config::maxBatteryDischargeCurrent ||
-            busVoltage < Config::minBusVoltage ||
-            pvVoltage < Config::minPvVoltage) {
-        if (maxSolarPower >= Config::powerAdjustment && maxSolarPower > Config::minSolarPower) {
-            maxSolarPower -= Config::powerAdjustment;
+    if (outPowerActive > pvChargingPower + config.pvOutPowerTolerance ||
+            batteryCurrent < config.maxBatteryDischargeCurrent ||
+            busVoltage < config.minBusVoltage ||
+            pvVoltage < config.minPvVoltage) {
+        if (maxSolarPower >= config.powerAdjustment && maxSolarPower > config.minSolarPower) {
+            maxSolarPower -= config.powerAdjustment;
         } else {
             cutoofTime = (cutoofTime > 0 ? cutoofTime : millis());
             maxSolarPower = 0;
         }
     } else if (maxSolarPower == 0 && cutoofTime > 0) {
-        if ((cutoofTime + Config::cutoffRetryTime * 1000) < millis() && busVoltage > Config::minBusVoltage && batterySOC > Config::cutoffRetryMinBatterySoc) {
+        if ((cutoofTime + config.cutoffRetryTime * 1000) < millis() && busVoltage > config.minBusVoltage && batterySOC > config.cutoffRetryMinBatterySoc) {
             cutoofTime = 0;
-            maxSolarPower = Config::initialSolarPower;
+            maxSolarPower = config.initialSolarPower;
         }
-    } else if (pvVoltage > Config::maxPvVoltage) {
-        if (maxSolarPower < Config::maxSolarPower - Config::powerAdjustment) {
-            maxSolarPower += Config::powerAdjustment;
+    } else if (pvVoltage > config.maxPvVoltage) {
+        if (maxSolarPower < config.maxSolarPower - config.powerAdjustment) {
+            maxSolarPower += config.powerAdjustment;
         } else {
-            maxSolarPower = Config::maxSolarPower;
+            maxSolarPower = config.maxSolarPower;
         }
     }
 }
@@ -560,3 +556,4 @@ uint16_t Inverter::getMaximumSolarCurrent()
     return maxSolarPower * 10 / (outVoltage > 0 ? outVoltage : 230);
 }
 
+Inverter inverter;

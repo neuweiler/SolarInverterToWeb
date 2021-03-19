@@ -13,17 +13,17 @@
 #include "WebServer.h"
 
 void setup() {
-	Logger::init();
-	Logger::info("Starting solar monitor...");
+	logger.init();
+	logger.info("Starting solar monitor...");
 
-	Config::init();
-    Station::getInstance()->init();
-    WebServer::getInstance()->init();
-	Inverter::getInstance()->init();
+	config.init();
+	station.init();
+	webServer.init();
+	inverter.init();
 }
 
 void loop() {
-	WebServer::getInstance()->loop();
-    Inverter::getInstance()->loop();
-    Station::getInstance()->loop();
+	webServer.loop();
+	inverter.loop();
+	station.loop();
 }

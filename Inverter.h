@@ -78,7 +78,8 @@ public:
         DC_DC_OVERCURRENT = 1 << 29
     };
 
-    static Inverter* getInstance();
+    Inverter();
+    virtual ~Inverter();
     void init();
     void loop();
     String toJSON();
@@ -94,9 +95,6 @@ private:
         WARNING
     };
 
-    Inverter();
-    virtual ~Inverter();
-    void operator=(Inverter const&);
     void sendCommand(String command);bool readResponse();
     void sendQuery();
     void parseStatusResponse(char *input);
@@ -110,6 +108,7 @@ private:
     String evalChargeSource();
     String evalLoadSource();
     void evalWarning(JsonArray &array);
+    void calculateSOC();
 
     char input[INPUT_BUFFER_SIZE + 1];
     uint32_t timestamp;
@@ -132,6 +131,7 @@ private:
     float batteryVoltageSCC; // in V
     int16_t batteryCurrent; // in A
     uint8_t batterySOC; // in percent
+    double batteryAh; // in Ah
     int16_t batteryPower; // in W
     uint16_t pvCurrent; // in A
     float pvVoltage; // in V
@@ -141,5 +141,7 @@ private:
     uint8_t eepromVersion;
     uint8_t faultCode;
 };
+
+extern Inverter inverter;
 
 #endif /* INVERTER_H_ */

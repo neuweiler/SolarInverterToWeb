@@ -7,16 +7,13 @@
 
 #include "Logger.h"
 
-#define LOG_BUFFER_SIZE 160
-
 //#define Serial1 Serial
-
-Logger::LogLevel Logger::logLevel = Debug;
-bool Logger::debugging = true;
-char *Logger::msgBuffer = new char[LOG_BUFFER_SIZE];
 
 void Logger::init() {
 	Serial1.begin(115200); // debug port
+	logLevel = Debug;
+	debugging = true;
+	msgBuffer = new char[LOG_BUFFER_SIZE];
 }
 
 /*
@@ -147,3 +144,5 @@ void Logger::log(LogLevel level, String format, va_list args) {
 	Serial1.print(": ");
 	Serial1.println(msgBuffer);
 }
+
+Logger logger;
