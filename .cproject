@@ -56,8 +56,6 @@
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/ESP8266mDNS}&quot;"/>
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/ESP8266mDNS/src}&quot;"/>
-                                    									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/WiFi/src}&quot;"/>
                                     								
                                 </option>
                                 								
@@ -86,8 +84,6 @@
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/ESP8266mDNS}&quot;"/>
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/ESP8266mDNS/src}&quot;"/>
-                                    									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/WiFi/src}&quot;"/>
                                     								
                                 </option>
                                 								
@@ -116,8 +112,6 @@
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/ESP8266mDNS}&quot;"/>
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/ESP8266mDNS/src}&quot;"/>
-                                    									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/SolarInverterToWeb/libraries/WiFi/src}&quot;"/>
                                     								
                                 </option>
                                 								
