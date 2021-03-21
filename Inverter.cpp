@@ -28,12 +28,6 @@ Inverter::Inverter()
     outPowerActive = 0;
     outLoad = 0;
     busVoltage = 0;
-    batteryVoltage = 0;
-    batteryVoltageSCC = 0;
-    batteryCurrent = 0;
-    batterySOC = 0;
-    batteryAh = 0;
-    batteryPower = 0;
     pvCurrent = 0;
     pvVoltage = 0;
     pvChargingPower = 0;
@@ -45,6 +39,8 @@ Inverter::Inverter()
     timestamp = 0;
     cutoofTime = 0;
     maxSolarPower = 1000;
+
+    floatOverrideActive = false;
 }
 
 Inverter::~Inverter()
@@ -59,6 +55,7 @@ void Inverter::init()
     Serial.begin(2400);
 
     timestamp = millis();
+    battery.init();
 
     maxSolarPower = config.initialSolarPower;
 }
@@ -79,19 +76,38 @@ void Inverter::loop()
             break;
         case STATUS:
             parseStatusResponse(input);
-//            calculateSOC();
+            battery.loop();
             queryMode = WARNING;
             break;
         case WARNING:
             parseWarningResponse(input);
             queryMode = MODE;
             break;
+        case IGNORE:
+        	queryMode = STATUS;
+        	break;
         }
     }
 
-    sendQuery();
+    if (floatOverrideActive && battery.isFullyCharged()) {
+    	floatOverrideActive = false;
+    	setFloatVoltage(config.batteryVoltageFloat);
+    } else if (!floatOverrideActive && config.batterySocTriggerFloatOverride > 0
+    		&& battery.getSOC() < config.batterySocTriggerFloatOverride) {
+    	floatOverrideActive = true;
+    	setFloatVoltage(config.batteryVoltageFullCharge);
+    } else {
+    	sendQuery();
+    }
 
     timestamp = millis();
+}
+
+void Inverter::setFloatVoltage(float voltage) {
+	logger.info("setting float voltage to %2.1fV", voltage);
+	sprintf(buffer, "PBFT%2.1f", voltage);
+	sendCommand(buffer);
+	queryMode = IGNORE;
 }
 
 /**
@@ -115,7 +131,7 @@ bool Inverter::readResponse()
 {
     if (Serial.available()) {
         byte size = Serial.readBytes(input, INPUT_BUFFER_SIZE);
-        input[size - 1] = 0; // drop the last char, it's a CR and not useful for CRC calculation
+       	input[size > 0 ? size - 1 : 0] = 0; // drop the last char, it's a CR and not useful for CRC calculation
         return CRCUtil::checkCRC(String(input));
     }
     return false;
@@ -136,6 +152,8 @@ void Inverter::sendQuery()
     case WARNING:
         sendCommand("QPIWS");
         break;
+    case IGNORE:
+    	break;
     }
 }
 
@@ -202,29 +220,28 @@ void Inverter::parseStatusResponse(char *input)
         uint16_t batteryDischargeCurrent;
 
         gridVoltage = atof(token);
-        processFloat(&gridFrequency);
-        processFloat(&outVoltage);
-        processFloat(&outFrequency);
-        processInt(&outPowerApparent);
-        processInt(&outPowerActive);
-        processShort(&outLoad);
-        processInt(&busVoltage);
-        processFloat(&batteryVoltage);
-        processInt(&batteryChargeCurrent);
-        processShort(&batterySOC);
-        processFloat(&temperature);
-        processInt(&pvCurrent);
-        processFloat(&pvVoltage);
-        processFloat(&batteryVoltageSCC);
-        processInt(&batteryDischargeCurrent);
-        processStatus1();
-        processInt(&fanCurrent);
-        fanCurrent *= 10;
-        processShort(&eepromVersion);
-        processInt(&pvChargingPower);
-        processStatus2();
-        batteryCurrent = (batteryChargeCurrent > 0 ? batteryChargeCurrent : -1 * batteryDischargeCurrent);
-        batteryPower = batteryCurrent * batteryVoltage;
+        gridFrequency = parseFloat();
+        outVoltage = parseFloat();
+        outFrequency = parseFloat();
+        outPowerApparent = parseInt();
+        outPowerActive = parseInt();
+        outLoad = parseShort();
+        busVoltage = parseInt();
+        battery.setVoltage(parseFloat());
+        batteryChargeCurrent = parseInt();
+        battery.setSOC(parseShort());
+        temperature = parseFloat();
+        pvCurrent = parseInt();
+        pvVoltage = parseFloat();
+        battery.setVoltageSCC(parseFloat());
+        batteryDischargeCurrent = parseInt();
+        status = parseStatus1();
+        fanCurrent = parseInt() * 10;
+        eepromVersion = parseShort();
+        pvChargingPower = parseInt();
+        status |= parseStatus2();
+
+        battery.setCurrent(batteryChargeCurrent > 0 ? batteryChargeCurrent : -1 * batteryDischargeCurrent);
     }
 }
 
@@ -235,7 +252,7 @@ void Inverter::parseStatusResponse(char *input)
  */
 void Inverter::parseWarningResponse(char *input)
 {
-    if (input[0] != '(' || strlen(input) < 2 || strstr(input, "(NAK") != NULL) {
+    if (input[0] != '(' || strlen(input) < 30 || strstr(input, "(NAK") != NULL) {
         logger.info("unable to parse '%s", input);
         return;
     }
@@ -308,63 +325,64 @@ void Inverter::parseWarningResponse(char *input)
 }
 
 /**
- * Read the next token, parse and put into a float variable.
+ * Read the next token, parse and return a float variable.
  */
-void Inverter::processFloat(float *value)
+float Inverter::parseFloat()
 {
     char *token = strtok(0, " ");
-    if (token != NULL && value != NULL) {
-        *value = atof(token);
-    }
+    return token != NULL ? atof(token) : 0;
 }
 
 /**
- * Read the next token, parse and put into a uint16_t variable.
+ * Read the next token, parse and return a uint16_t variable.
  */
-void Inverter::processInt(uint16_t *value)
+uint16_t Inverter::parseInt()
 {
     char *token = strtok(0, " ");
-    if (token != NULL && value != NULL) {
-        *value = atol(token);
-    }
+    return token != NULL ? atol(token) : 0;
 }
 
 /**
- * Read the next token, parse and put into a uint8_t variable.
+ * Read the next token, parse and return a uint8_t variable.
  */
-void Inverter::processShort(uint8_t *value)
+uint8_t Inverter::parseShort()
 {
     char *token = strtok(0, " ");
-    if (token != NULL && value != NULL) {
-        *value = atoi(token);
+    return token != NULL ? atoi(token) : 0;
+}
+
+uint8_t Inverter::parseStatus1()
+{
+    char *token = strtok(0, " ");
+    uint8_t status = 0;
+
+    if (token != NULL) {
+		if (token[3] == '1')
+			status |= LOAD;
+		if (token[4] == '1')
+			status |= BATTERY_VOLTAGE_TOO_STEADY;
+		if (token[5] == '1')
+			status |= CHARGING;
+		if (token[6] == '1')
+			status |= CHARGING_SOLAR;
+		if (token[7] == '1')
+			status |= CHARGING_GRID;
     }
+    return status;
 }
 
-void Inverter::processStatus1()
+uint8_t Inverter::parseStatus2()
 {
     char *token = strtok(0, " ");
-    status = 0;
+    uint8_t status = 0;
 
-    if (token[3] == '1')
-        status |= LOAD;
-    if (token[4] == '1')
-        status |= BATTERY_VOLTAGE_TOO_STEADY;
-    if (token[5] == '1')
-        status |= CHARGING;
-    if (token[6] == '1')
-        status |= CHARGING_SOLAR;
-    if (token[7] == '1')
-        status |= CHARGING_GRID;
-}
-
-void Inverter::processStatus2()
-{
-    char *token = strtok(0, " ");
-
-    if (token[0] == '1')
-        status |= CHARGING_FLOATING;
-    if (token[1] == '1')
-        status |= SWITCHED_ON;
+    if (token != NULL) {
+		if (token[0] == '1')
+			status |= CHARGING_FLOATING;
+		if (token[1] == '1')
+			status |= SWITCHED_ON;
+    }
+    return status;
 }
 
 /**
@@ -376,43 +394,43 @@ String Inverter::toJSON()
 
     jsonDoc["time"] = millis() / 1000;
 
-    JsonObject grid = jsonDoc.createNestedObject("grid");
-    grid["voltage"] = gridVoltage;
-    grid["frequency"] = gridFrequency;
+    JsonObject gridNode = jsonDoc.createNestedObject("grid");
+    gridNode["voltage"] = gridVoltage;
+    gridNode["frequency"] = gridFrequency;
 
-    JsonObject out = jsonDoc.createNestedObject("out");
-    out["voltage"] = outVoltage;
-    out["frequency"] = outFrequency;
-    out["powerApparent"] = outPowerApparent;
-    out["powerActive"] = outPowerActive;
-    out["load"] = outLoad;
-    out["source"] = evalLoadSource();
+    JsonObject outNode = jsonDoc.createNestedObject("out");
+    outNode["voltage"] = outVoltage;
+    outNode["frequency"] = outFrequency;
+    outNode["powerApparent"] = outPowerApparent;
+    outNode["powerActive"] = outPowerActive;
+    outNode["load"] = outLoad;
+    outNode["source"] = evalLoadSource();
 
-    JsonObject battery = jsonDoc.createNestedObject("battery");
-    battery["voltage"] = batteryVoltage;
-    battery["voltageSCC"] = batteryVoltageSCC;
-    battery["current"] = batteryCurrent;
-    battery["power"] = batteryPower;
-    battery["soc"] = batterySOC;
-    battery["source"] = evalChargeSource();
-    battery["floatCharge"] = (status & CHARGING_FLOATING ? "on" : "off");
+    JsonObject batteryNode = jsonDoc.createNestedObject("battery");
+    batteryNode["voltage"] = battery.getVoltage();
+    batteryNode["current"] = battery.getCurrent();
+    batteryNode["power"] = battery.getPower();
+    batteryNode["soc"] = battery.getSOC();
+    batteryNode["ampereHours"] = battery.getAmpereHours();
+    batteryNode["source"] = evalChargeSource();
+    batteryNode["floatCharge"] = (status & CHARGING_FLOATING ? "on" : "off");
 
-    JsonObject pv = jsonDoc.createNestedObject("pv");
-    pv["voltage"] = pvVoltage;
-    pv["current"] = pvCurrent;
-    pv["power"] = pvChargingPower;
-    pv["maxPower"] = getMaximumSolarPower();
-    pv["maxCurrent"] = getMaximumSolarCurrent();
+    JsonObject pvNode = jsonDoc.createNestedObject("pv");
+    pvNode["voltage"] = pvVoltage;
+    pvNode["current"] = pvCurrent;
+    pvNode["power"] = pvChargingPower;
+    pvNode["maxPower"] = getMaximumSolarPower();
+    pvNode["maxCurrent"] = getMaximumSolarCurrent();
 
-    JsonObject system = jsonDoc.createNestedObject("system");
-    system["version"] = eepromVersion;
-    system["mode"] = modeString[mode];
-    system["switch"] = (status & SWITCHED_ON ? "on" : "off");
-    system["voltage"] = busVoltage;
-    system["temperature"] = temperature;
-    system["fanCurrent"] = fanCurrent;
-    system["faultCode"] = faultCode;
-    JsonArray warn = system.createNestedArray("warning");
+    JsonObject systemNode = jsonDoc.createNestedObject("system");
+    systemNode["version"] = eepromVersion;
+    systemNode["mode"] = modeString[mode];
+    systemNode["switch"] = (status & SWITCHED_ON ? "on" : "off");
+    systemNode["voltage"] = busVoltage;
+    systemNode["temperature"] = temperature;
+    systemNode["fanCurrent"] = fanCurrent;
+    systemNode["faultCode"] = faultCode;
+    JsonArray warn = systemNode.createNestedArray("warning");
     evalWarning(warn);
 
     String str;
@@ -517,7 +535,7 @@ void Inverter::evalWarning(JsonArray &array)
 void Inverter::calculateMaximumSolarPower()
 {
     if (outPowerActive > pvChargingPower + config.pvOutPowerTolerance ||
-            batteryCurrent < config.maxBatteryDischargeCurrent ||
+            battery.getCurrent() < config.maxBatteryDischargeCurrent ||
             busVoltage < config.minBusVoltage ||
             pvVoltage < config.minPvVoltage) {
         if (maxSolarPower >= config.powerAdjustment && maxSolarPower > config.minSolarPower) {
@@ -527,7 +545,7 @@ void Inverter::calculateMaximumSolarPower()
             maxSolarPower = 0;
         }
     } else if (maxSolarPower == 0 && cutoofTime > 0) {
-        if ((cutoofTime + config.cutoffRetryTime * 1000) < millis() && busVoltage > config.minBusVoltage && batterySOC > config.cutoffRetryMinBatterySoc) {
+        if ((cutoofTime + config.cutoffRetryTime * 1000) < millis() && busVoltage > config.minBusVoltage && battery.getSOC() > config.cutoffRetryMinBatterySoc) {
             cutoofTime = 0;
             maxSolarPower = config.initialSolarPower;
         }

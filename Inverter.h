@@ -13,8 +13,9 @@
 #include "Logger.h"
 #include "CRCUtil.h"
 #include "Config.h"
+#include "Battery.h"
 
-#define INPUT_BUFFER_SIZE 250
+#define INPUT_BUFFER_SIZE 512
 
 class Inverter
 {
@@ -92,25 +93,27 @@ private:
     {
         STATUS,
         MODE,
-        WARNING
+        WARNING,
+		IGNORE
     };
 
+    void setFloatVoltage(float voltage);
     void sendCommand(String command);bool readResponse();
     void sendQuery();
     void parseStatusResponse(char *input);
     void parseModeResponse(char *input);
     void parseWarningResponse(char *input);
-    void processFloat(float *value);
-    void processInt(uint16_t *value);
-    void processShort(uint8_t *value);
-    void processStatus1();
-    void processStatus2();
+    float parseFloat();
+    uint16_t parseInt();
+    uint8_t parseShort();
+    uint8_t parseStatus1();
+    uint8_t parseStatus2();
     String evalChargeSource();
     String evalLoadSource();
     void evalWarning(JsonArray &array);
-    void calculateSOC();
 
     char input[INPUT_BUFFER_SIZE + 1];
+    char buffer[20];
     uint32_t timestamp;
     uint32_t cutoofTime;
     uint16_t maxSolarPower;
@@ -127,12 +130,6 @@ private:
     uint16_t outPowerActive; // in W
     uint8_t outLoad; // in percent
     uint16_t busVoltage; // in V
-    float batteryVoltage; // in V
-    float batteryVoltageSCC; // in V
-    int16_t batteryCurrent; // in A
-    uint8_t batterySOC; // in percent
-    double batteryAh; // in Ah
-    int16_t batteryPower; // in W
     uint16_t pvCurrent; // in A
     float pvVoltage; // in V
     uint16_t pvChargingPower; // in W
@@ -140,6 +137,7 @@ private:
     uint16_t fanCurrent; // in mW
     uint8_t eepromVersion;
     uint8_t faultCode;
+    bool floatOverrideActive;
 };
 
 extern Inverter inverter;
