@@ -29,6 +29,9 @@ CRCUtil::CRCUtil()
 
 bool CRCUtil::checkCRC(String data)
 {
+	if (data.length() < 3) {
+		return false;
+	}
     String firstValue = data.substring(0, data.length() - 2);
     String lastValue = data.substring(data.length() - 2);
 
