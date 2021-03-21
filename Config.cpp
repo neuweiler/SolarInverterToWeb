@@ -8,27 +8,6 @@
 #include "Config.h"
 
 const char *Config::CONFIG_FILE = "/config.json";
-uint16_t Config::initialSolarPower;
-uint16_t Config::inverterUpdateInterval;
-uint16_t Config::pvOutPowerTolerance;
-int16_t Config::maxBatteryDischargeCurrent;
-int16_t Config::minBusVoltage;
-float Config::minPvVoltage;
-float Config::maxPvVoltage;
-uint16_t Config::powerAdjustment;
-uint16_t Config::minSolarPower;
-uint16_t Config::maxSolarPower;
-uint32_t Config::cutoffRetryTime;
-uint8_t Config::cutoffRetryMinBatterySoc;
-String Config::stationSsid;
-String Config::stationPassword;
-uint16_t Config::stationUpdateInterval;
-uint16_t Config::stationReconnectInterval;
-bool Config::outputAsCurrent;
-String Config::stationRequestPrefix;
-String Config::stationRequestPostfix;
-String Config::serverSsid;
-String Config::serverPassword;
 
 void Config::init()
 {
@@ -40,13 +19,13 @@ void Config::init()
 void Config::load() {
     File file = SPIFFS.open(CONFIG_FILE, "r");
     if (!file) {
-        Logger::error("Failed to open %s", CONFIG_FILE);
+        logger.error("Failed to open %s", CONFIG_FILE);
     }
 
     StaticJsonDocument < 1024 > doc;
     DeserializationError error = deserializeJson(doc, file);
     if (error)
-        Logger::error("Failed to parse file, using default configuration");
+        logger.error("Failed to parse file, using default configuration");
 
     inverterUpdateInterval = doc["inverter"]["interval"] | 300;
     initialSolarPower = doc["inverter"]["pv"]["power"]["initial"] | 1000;
@@ -60,6 +39,18 @@ void Config::load() {
     minBusVoltage = doc["inverter"]["bus"]["voltage"]["min"] | 390;
     cutoffRetryTime = doc["inverter"]["cutoffRetry"]["time"] | 300;
     cutoffRetryMinBatterySoc = doc["inverter"]["cutoffRetry"]["minBatterySoc"] | 50;
+
+
+    batteryCapacity = doc["battery"]["capacity"] | 100;
+    batteryType = doc["battery"]["type"] | BatteryType::LiIon;
+    batteryVoltageFullCharge = doc["battery"]["voltage"]["full"] | 28.4f;
+    batteryVoltageNominal = doc["battery"]["voltage"]["nominal"] | 25.6f;
+    batteryVoltageEmpty = doc["battery"]["voltage"]["empty"] | 21.6f;
+    batteryVoltageFloat = doc["battery"]["voltage"]["float"] | 24.5f;
+    batterySocCalculateInternally = doc["battery"]["soc"]["calculateInternally"] | true;
+    batteryRestDuration = doc["battery"]["soc"]["restDuration"] | 5;
+    batteryRestCurrent = doc["battery"]["soc"]["restCurrent"] | 10;
+    batterySocTriggerFloatOverride = doc["battery"]["soc"]["triggerFloatOverride"] | 0;
 
     stationSsid = String(doc["station"]["ssid"] | "myStation");
     stationPassword = String(doc["station"]["password"] | "stationPasswd");
@@ -77,27 +68,40 @@ void Config::load() {
 
 void Config::print()
 {
-    Logger::console("inverterUpdateInterval : %d", inverterUpdateInterval);
-    Logger::console("initialSolarPower: %d", initialSolarPower);
-    Logger::console("pvOutPowerTolerance: %d", pvOutPowerTolerance);
-    Logger::console("minSolarPower: %d", minSolarPower);
-    Logger::console("maxSolarPower: %d", maxSolarPower);
-    Logger::console("powerAdjustment: %d", powerAdjustment);
-    Logger::console("minPvVoltage: %f", minPvVoltage);
-    Logger::console("maxPvVoltage: %f", maxPvVoltage);
-    Logger::console("maxBatteryDischargeCurrent: %d", maxBatteryDischargeCurrent);
-    Logger::console("minBusVoltage: %d", minBusVoltage);
-    Logger::console("cutoffRetryTime: %d", cutoffRetryTime);
-    Logger::console("cutoffRetryMinBatterySoc: %d", cutoffRetryMinBatterySoc);
+    logger.console("inverterUpdateInterval : %dms", inverterUpdateInterval);
+    logger.console("initialSolarPower: %dW", initialSolarPower);
+    logger.console("pvOutPowerTolerance: %dW", pvOutPowerTolerance);
+    logger.console("minSolarPower: %dW", minSolarPower);
+    logger.console("maxSolarPower: %dW", maxSolarPower);
+    logger.console("powerAdjustment: %dW", powerAdjustment);
+    logger.console("minPvVoltage: %fV", minPvVoltage);
+    logger.console("maxPvVoltage: %fV", maxPvVoltage);
+    logger.console("maxBatteryDischargeCurrent: %dA", maxBatteryDischargeCurrent);
+    logger.console("minBusVoltage: %dV", minBusVoltage);
+    logger.console("cutoffRetryTime: %dsec", cutoffRetryTime);
+    logger.console("cutoffRetryMinBatterySoc: %d%%", cutoffRetryMinBatterySoc);
 
-    Logger::console("stationSsid: %s", stationSsid.c_str());
-    Logger::console("stationPassword: %s", stationPassword.c_str());
-    Logger::console("stationUpdateInterval: %d", stationUpdateInterval);
-    Logger::console("stationReconnectInterval: %d", stationReconnectInterval);
-    Logger::console("outputAsCurrent: %d", outputAsCurrent);
-    Logger::console("stationRequestPrefix: %s", stationRequestPrefix.c_str());
-    Logger::console("stationRequestPostfix: %s", stationRequestPostfix.c_str());
+    logger.console("batteryCapacity: %dAh", batteryCapacity);
+    logger.console("batteryType: %d", batteryType);
+    logger.console("batteryVoltageFullCharge: %fV", batteryVoltageFullCharge);
+    logger.console("batteryVoltageNominal: %fV", batteryVoltageNominal);
+    logger.console("batteryVoltageEmpty: %fV", batteryVoltageEmpty);
+    logger.console("batteryVoltageFloat: %fV", batteryVoltageFloat);
+    logger.console("batterySocTriggerFloatOverride: %f%%", batterySocTriggerFloatOverride);
+    logger.console("batteryRestDuration: %dsec", batteryRestDuration);
+    logger.console("batteryRestCurrent: %dA", batteryRestCurrent);
 
-    Logger::console("serverSsid: %s", serverSsid.c_str());
-    Logger::console("serverPassword: %s", serverPassword.c_str());
+    logger.console("stationSsid: %s", stationSsid.c_str());
+    logger.console("stationPassword: %s", stationPassword.c_str());
+    logger.console("stationUpdateInterval: %d", stationUpdateInterval);
+    logger.console("stationReconnectInterval: %d", stationReconnectInterval);
+    logger.console("outputAsCurrent: %d", outputAsCurrent);
+    logger.console("stationRequestPrefix: %s", stationRequestPrefix.c_str());
+    logger.console("stationRequestPostfix: %s", stationRequestPostfix.c_str());
+
+    logger.console("serverSsid: %s", serverSsid.c_str());
+    logger.console("serverPassword: %s", serverPassword.c_str());
 }
+
+Config config;
+

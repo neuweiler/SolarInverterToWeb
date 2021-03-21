@@ -29,6 +29,22 @@
       "minBatterySoc": 50
     }
   },
+  "battery": {
+    "type": 2,
+    "capacity": 100,
+    "voltage": {
+      "full": 28.4,
+      "nominal": 25.6,
+      "empty": 21.6,
+      "float": 24.5
+    },
+    "soc": {
+      "calculateInternally": true,
+      "restDuration": 5,
+      "restCurrent": 10,
+      "triggerFloatOverride": 80
+    }
+  },
   "station": {
     "ssid": "GEVCU",
     "password": "verysecret",
@@ -38,7 +54,7 @@
     },
     "request": {
       "outputAsCurrent": true,
-      "prefix": "http://192.168.3.10/saveConfig?maximumSolarCurrent=",
+      "prefix": "http://192.168.3.10/saveConfig?overrideInputCurrent=",
       "postfix": ""
     }
   },
