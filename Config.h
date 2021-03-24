@@ -50,6 +50,7 @@ public:
     float batteryVoltageNominal; // the nominal (resting) voltage of the fully charged battery pack (in V)
     float batteryVoltageEmpty; // the battery voltage at which a resting battery is to be considered fully discharged (in V)
     float batteryVoltageFloat; // the default float voltage to set to avoid trickle charging Li-Ion batteries (in V)
+    bool overDischargeProtection; // even when switched to utility in SBU mode, the inverter still may drain the battery, if true this switches to SUB mode and enables grid charge until battery voltage is at nominal voltage
     bool batterySocCalculateInternally; // if true we'll display the SOC / Ah by counting ourselfes, if fals we'll use the inverter's SOC (true/false)
     uint8_t batterySocTriggerFloatOverride; // state of charge at which a float voltage charge will be triggered (in %, 0 to disable)
     uint8_t batteryRestDuration; // if voltage < batteryVoltageEmpty this is the duration where load has to be below restCurrent before we declare the battery empty (in sec)

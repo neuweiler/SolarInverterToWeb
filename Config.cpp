@@ -47,6 +47,7 @@ void Config::load() {
     batteryVoltageNominal = doc["battery"]["voltage"]["nominal"] | 25.6f;
     batteryVoltageEmpty = doc["battery"]["voltage"]["empty"] | 21.6f;
     batteryVoltageFloat = doc["battery"]["voltage"]["float"] | 24.5f;
+    overDischargeProtection = doc["battery"]["overDischargeProtection"] | false;
     batterySocCalculateInternally = doc["battery"]["soc"]["calculateInternally"] | true;
     batteryRestDuration = doc["battery"]["soc"]["restDuration"] | 5;
     batteryRestCurrent = doc["battery"]["soc"]["restCurrent"] | 10;

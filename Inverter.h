@@ -111,6 +111,9 @@ private:
     String evalChargeSource();
     String evalLoadSource();
     void evalWarning(JsonArray &array);
+	void processResponse();
+	bool adjustFloatVoltage();
+	bool overDischargeProtection();
 
     char input[INPUT_BUFFER_SIZE + 1];
     char buffer[20];
@@ -138,6 +141,7 @@ private:
     uint8_t eepromVersion;
     uint8_t faultCode;
     bool floatOverrideActive;
+    bool overDischargeProtectionActive;
 };
 
 extern Inverter inverter;

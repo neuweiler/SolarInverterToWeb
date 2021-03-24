@@ -31,18 +31,19 @@
   },
   "battery": {
     "type": 2,
-    "capacity": 100,
+    "capacity": 160,
     "voltage": {
       "full": 28.4,
       "nominal": 25.6,
-      "empty": 21.6,
+      "empty": 24.0,
       "float": 24.5
     },
+    "overDischargeProtection": true,
     "soc": {
       "calculateInternally": true,
       "restDuration": 5,
       "restCurrent": 10,
-      "triggerFloatOverride": 80
+      "triggerFloatOverride": 90
     }
   },
   "station": {
