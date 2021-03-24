@@ -108,7 +108,7 @@ float Battery::getVoltage() {
 	return voltage;
 }
 
-uint16_t Battery::getPower() {
+int16_t Battery::getPower() {
 	return current * voltage;
 }
 

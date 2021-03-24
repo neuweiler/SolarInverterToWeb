@@ -28,7 +28,7 @@ public:
 	int16_t getCurrent();
 	void setVoltage(float voltage);
 	float getVoltage();
-	uint16_t getPower();
+	int16_t getPower();
 	void setVoltageSCC(float voltageSCC);
 	float getVoltageSCC();
 private:
