@@ -70,7 +70,7 @@ void Battery::checkBatteryResting() {
 }
 
 bool Battery::isFullyCharged() {
-	return voltage >= config.batteryVoltageFullCharge;
+	return voltage >= config.batteryVoltageFullCharge && current < config.batteryRestCurrent;
 }
 
 bool Battery::isEmpty() {
