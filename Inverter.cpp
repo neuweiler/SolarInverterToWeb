@@ -164,7 +164,7 @@ void Inverter::setFloatVoltage(float voltage) {
 }
 
 bool Inverter::overDischargeProtection() {
-	if (!overDischargeProtectionActive && config.overDischargeProtection && battery.isEmpty()) {
+	if (!overDischargeProtectionActive && config.batteryOverDischargeProtection && battery.isEmpty()) {
 		logger.info("activating over-discharge protection");
 		overDischargeProtectionActive = true;
 		sendCommand("PCP02"); // set charger prio to solar and utility

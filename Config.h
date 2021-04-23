@@ -9,6 +9,7 @@
 #define CONFIG_H_
 
 #include <Arduino.h>
+#include <LittleFS.h>
 #include <FS.h>
 #include <ArduinoJson.h>
 #include "Logger.h"
@@ -50,24 +51,21 @@ public:
     float batteryVoltageNominal; // the nominal (resting) voltage of the fully charged battery pack (in V)
     float batteryVoltageEmpty; // the battery voltage at which a resting battery is to be considered fully discharged (in V)
     float batteryVoltageFloat; // the default float voltage to set to avoid trickle charging Li-Ion batteries (in V)
-    bool overDischargeProtection; // even when switched to utility in SBU mode, the inverter still may drain the battery, if true this switches to SUB mode and enables grid charge until battery voltage is at nominal voltage
+    bool batteryOverDischargeProtection; // even when switched to utility in SBU mode, the inverter still may drain the battery, if true this switches to SUB mode and enables grid charge until battery voltage is at nominal voltage
     bool batterySocCalculateInternally; // if true we'll display the SOC / Ah by counting ourselfes, if fals we'll use the inverter's SOC (true/false)
     uint8_t batterySocTriggerFloatOverride; // state of charge at which a float voltage charge will be triggered (in %, 0 to disable)
     uint8_t batteryRestDuration; // if voltage < batteryVoltageEmpty this is the duration where load has to be below restCurrent before we declare the battery empty (in sec)
     uint8_t batteryRestCurrent; // max current where we still consider the battery to be at rest with no signifikant load (in A)
 
     // Station
-    String stationSsid;
-    String stationPassword;
-    uint16_t stationUpdateInterval; // at which interval the next update is sent to the consumer (in ms)
-    uint16_t stationReconnectInterval; // at which interval the next connection attempt to the station is made (in ms)
-    bool outputAsCurrent; // if true the consumer output is sent in Amps, otherwise in Watts
-    String stationRequestPrefix; // the prefix for the HTTP request to the station
-    String stationRequestPostfix; // the postfix for the HTTP request to the station
+    String wifiSsid;
+    String wifiPassword;
+    uint16_t wifiUpdateInterval; // at which interval the next update is sent to the consumer (in ms)
+    uint16_t wifiReconnectInterval; // at which interval the next connection attempt to the station is made (in ms)
 
     // Webserver
-    String serverSsid;
-    String serverPassword;
+    String wifiApSsid;
+    String wifiApPassword;
 
 private:
     void print();

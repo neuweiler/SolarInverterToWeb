@@ -46,21 +46,16 @@
       "triggerFloatOverride": 90
     }
   },
-  "station": {
-    "ssid": "GEVCU",
-    "password": "verysecret",
+  "wifi": {
+    "ssid": "Wifi, the final frontier...",
+    "password": "makeITso",
     "interval": {
       "update": 2000,
       "reconnect": 15000
     },
-    "request": {
-      "outputAsCurrent": true,
-      "prefix": "http://192.168.3.10/saveConfig?overrideInputCurrent=",
-      "postfix": ""
+    "ap": {
+      "ssid": "solar",
+      "password": "inverter"
     }
-  },
-  "server": {
-    "ssid": "solar",
-    "password": "inverter"
   }
 }

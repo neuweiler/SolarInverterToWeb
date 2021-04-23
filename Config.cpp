@@ -11,13 +11,13 @@ const char *Config::CONFIG_FILE = "/config.json";
 
 void Config::init()
 {
-    SPIFFS.begin();
+	LittleFS.begin();
     load();
     print();
 }
 
 void Config::load() {
-    File file = SPIFFS.open(CONFIG_FILE, "r");
+    File file = LittleFS.open(CONFIG_FILE, "r");
     if (!file) {
         logger.error("Failed to open %s", CONFIG_FILE);
     }
@@ -47,22 +47,19 @@ void Config::load() {
     batteryVoltageNominal = doc["battery"]["voltage"]["nominal"] | 25.6f;
     batteryVoltageEmpty = doc["battery"]["voltage"]["empty"] | 21.6f;
     batteryVoltageFloat = doc["battery"]["voltage"]["float"] | 24.5f;
-    overDischargeProtection = doc["battery"]["overDischargeProtection"] | false;
+    batteryOverDischargeProtection = doc["battery"]["overDischargeProtection"] | false;
     batterySocCalculateInternally = doc["battery"]["soc"]["calculateInternally"] | true;
     batteryRestDuration = doc["battery"]["soc"]["restDuration"] | 5;
     batteryRestCurrent = doc["battery"]["soc"]["restCurrent"] | 10;
     batterySocTriggerFloatOverride = doc["battery"]["soc"]["triggerFloatOverride"] | 0;
 
-    stationSsid = String(doc["station"]["ssid"] | "myStation");
-    stationPassword = String(doc["station"]["password"] | "stationPasswd");
-    stationUpdateInterval = doc["station"]["interval"]["update"] | 2000;
-    stationReconnectInterval = doc["station"]["interval"]["reconnect"] | 15000;
-    outputAsCurrent = doc["station"]["request"]["outputAsCurrent"] | true;
-    stationRequestPrefix = String(doc["station"]["request"]["prefix"] | "http://192.168.3.10/?maximumSolarCurrent=");
-    stationRequestPostfix = String(doc["station"]["request"]["postfix"] | "");
+    wifiSsid = String(doc["wifi"]["ssid"] | "myStation");
+    wifiPassword = String(doc["wifi"]["password"] | "stationPasswd");
+    wifiUpdateInterval = doc["wifi"]["interval"]["update"] | 2000;
+    wifiReconnectInterval = doc["wifi"]["interval"]["reconnect"] | 15000;
 
-    serverSsid = String(doc["server"]["ssid"] | "solar");
-    serverPassword = String(doc["server"]["password"] | "inverter");
+    wifiApSsid = String(doc["wifi"]["ap"]["ssid"] | "solar");
+    wifiApPassword = String(doc["wifi"]["ap"]["password"] | "inverter");
 
     file.close();
 }
@@ -92,16 +89,13 @@ void Config::print()
     logger.console("batteryRestDuration: %dsec", batteryRestDuration);
     logger.console("batteryRestCurrent: %dA", batteryRestCurrent);
 
-    logger.console("stationSsid: %s", stationSsid.c_str());
-    logger.console("stationPassword: %s", stationPassword.c_str());
-    logger.console("stationUpdateInterval: %d", stationUpdateInterval);
-    logger.console("stationReconnectInterval: %d", stationReconnectInterval);
-    logger.console("outputAsCurrent: %d", outputAsCurrent);
-    logger.console("stationRequestPrefix: %s", stationRequestPrefix.c_str());
-    logger.console("stationRequestPostfix: %s", stationRequestPostfix.c_str());
+    logger.console("wifiSsid: %s", wifiSsid.c_str());
+    logger.console("wifiPassword: %s", wifiPassword.c_str());
+    logger.console("wifiUpdateInterval: %d", wifiUpdateInterval);
+    logger.console("wifiReconnectInterval: %d", wifiReconnectInterval);
 
-    logger.console("serverSsid: %s", serverSsid.c_str());
-    logger.console("serverPassword: %s", serverPassword.c_str());
+    logger.console("wifiApSsid: %s", wifiApSsid.c_str());
+    logger.console("wifiApPassword: %s", wifiApPassword.c_str());
 }
 
 Config config;
