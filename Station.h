@@ -10,6 +10,7 @@
 
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
+#include <ESP8266mDNS.h>
 #include <WiFiClient.h>
 
 #include "Logger.h"
@@ -27,14 +28,11 @@ public:
     void loop();
 
 private:
-    void sendUpdate();
     void checkConnection();
 
     uint32_t timestamp;
     uint32_t lastConnectionAttempt;
-    uint8_t connectionError;
     bool apConnected, stationConnected;
-    uint16_t oldOutput;
 };
 
 extern Station station;

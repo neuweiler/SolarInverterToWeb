@@ -24,10 +24,8 @@ Station::Station()
 {
     timestamp = 0;
     lastConnectionAttempt = 0;
-    connectionError = 0;
     apConnected = false;
     stationConnected = false;
-    oldOutput = 0;
 }
 
 Station::~Station()
@@ -45,8 +43,15 @@ void Station::init()
     WiFi.persistent(false); // prevent flash memory wear ! (https://github.com/esp8266/Arduino/issues/1054)
     WiFi.mode(WIFI_AP_STA); // set as AP and as client
     WiFi.setAutoReconnect(false); // auto-reconnect tries every 1sec, messes up soft-ap (can't connect)
-    WiFi.begin(config.stationSsid.c_str(), config.stationPassword.c_str());
-    logger.info("started WiFi Station for SSID %s", config.stationSsid.c_str());
+    WiFi.begin(config.wifiSsid.c_str(), config.wifiPassword.c_str());
+    logger.info("started WiFi Station for SSID %s", config.wifiSsid.c_str());
+
+    // setup own AccessPoint
+    WiFi.hostname("solar");
+    WiFi.softAP(config.wifiApSsid.c_str(), config.wifiApPassword.c_str());
+    logger.info("started WiFi AP %s on ip %s", config.wifiApSsid.c_str(), WiFi.softAPIP().toString().c_str());
+
+    MDNS.begin(config.wifiApSsid.c_str());
 }
 
 /**
@@ -54,14 +59,13 @@ void Station::init()
  */
 void Station::loop()
 {
-    if (millis() - timestamp < config.stationUpdateInterval) {
+    if (millis() - timestamp < config.wifiUpdateInterval) {
         return;
     }
 
     checkConnection();
-    if (stationConnected) {
-        sendUpdate();
-    }
+    MDNS.update();
+
     timestamp = millis();
 }
 
@@ -80,9 +84,9 @@ void Station::checkConnection()
     } else {
         stationConnected = false;
         // we try to (re)establish connection every 15sec, this allows softAP to work (although it gets blocked for 1-2sec)
-        if (millis() - lastConnectionAttempt > config.stationReconnectInterval) {
-            logger.info("attempting to (re)connect to %s", config.stationSsid.c_str());
-            WiFi.begin(config.stationSsid.c_str(), config.stationPassword.c_str());
+        if (millis() - lastConnectionAttempt > config.wifiReconnectInterval) {
+            logger.info("attempting to (re)connect to %s", config.wifiSsid.c_str());
+            WiFi.begin(config.wifiSsid.c_str(), config.wifiPassword.c_str());
             lastConnectionAttempt = millis();
         }
     }
@@ -91,44 +95,6 @@ void Station::checkConnection()
     // indicate connection status via LEDs
     digitalWrite(LED_STATION, (stationConnected ? HIGH : LOW));
     digitalWrite(LED_AP, (apConnected ? HIGH : LOW));
-}
-
-/**
- * Create GET request and send maximum solar current to target device.
- */
-void Station::sendUpdate()
-{
-    inverter.calculateMaximumSolarPower();
-    uint16_t maxOutput = (config.outputAsCurrent ? inverter.getMaximumSolarCurrent() : inverter.getMaximumSolarPower());
-    if (oldOutput == maxOutput) {
-        return;
-    }
-    oldOutput = maxOutput;
-
-    HTTPClient http;
-    String requestUrl;
-
-    requestUrl.concat(config.stationRequestPrefix);
-    requestUrl.concat(maxOutput);
-    requestUrl.concat(config.stationRequestPostfix);
-    http.begin(requestUrl);
-
-    logger.debug("sending request %s", requestUrl.c_str());
-    int httpCode = http.GET();
-    if (httpCode > 0) {
-        if (httpCode == HTTP_CODE_OK) {
-            logger.debug("repsonse: OK");
-        }
-    } else {
-        logger.error("request failed: %s", http.errorToString(httpCode).c_str());
-        connectionError++;
-        if (connectionError > 3) {
-            WiFi.disconnect(false); // otherwise WiFi doesn't realize that the connection was lost
-            WiFi.mode(WIFI_AP_STA);
-            connectionError = 0;
-        }
-    }
-    http.end();
 }
 
 Station station;
