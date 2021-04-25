@@ -7,6 +7,9 @@
 
 #include "Battery.h"
 
+/**
+ * Constructor
+ */
 Battery::Battery() {
 	timestamp = 0;
 	restTimestamp = 0;
@@ -19,19 +22,31 @@ Battery::Battery() {
 
 }
 
+/**
+ * Destructor
+ */
 Battery::~Battery() {
 }
 
+/**
+ * Initialize the class
+ */
 void Battery::init() {
 	timestamp = millis();
 }
 
+/**
+ * the main loop
+ */
 void Battery::loop() {
 	updateSoc();
 	checkBatteryResting();
 }
 
 /**
+ * Calculate the state of charge based on current and elapsed time since last measurement.
+ * The calculation is done in an Ampere-miliseconds buffer and moved over from there to the Ah counter
+ * (which counts in 0.1Ah)
  *
  * 1Ah = 60Am = 3600As = 3600000Ams
  */
@@ -39,23 +54,23 @@ void Battery::updateSoc() {
 	ampereMilliseconds += current * (millis() - timestamp);
 	timestamp = millis();
 
-	if (ampereMilliseconds > 3600000) {
-		if (ampereHours < config.batteryCapacity) {
+	if (ampereMilliseconds > 360000) {
+		if (ampereHours < config.batteryCapacity * 10) {
 			ampereHours++;
 		}
-		ampereMilliseconds -= 3600000;
+		ampereMilliseconds -= 360000;
 	} else if (ampereMilliseconds < -3600000) {
 		if (ampereHours > 0) {
 			ampereHours--;
 		}
-		ampereMilliseconds += 3600000;
+		ampereMilliseconds += 360000;
 	}
 
 	if (isEmpty()) {
 		ampereHours = 0;
 	}
 	if (isFullyCharged()) {
-		ampereHours = config.batteryCapacity;
+		ampereHours = config.batteryCapacity * 10;
 	}
 
 	if (config.batterySocCalculateInternally) {
@@ -65,7 +80,7 @@ void Battery::updateSoc() {
 
 void Battery::checkBatteryResting() {
 	if (current <= config.batteryRestCurrent * -1) {
-		restTimestamp = millis(); // we're not resting, update the timestanp
+		restTimestamp = millis(); // we're not resting, update the timestamp
 	}
 }
 
@@ -78,16 +93,25 @@ bool Battery::isEmpty() {
 			&& (restTimestamp + config.batteryRestDuration * 1000) < millis();
 }
 
-void Battery::setSOC(uint8_t soc) {
+/**
+ * Set the current state of charge in 0.1% (if we don't calc it by ourselves)
+ */
+void Battery::setSOC(uint16_t soc) {
 	if (!config.batterySocCalculateInternally) {
 		this->soc = soc;
 	}
 }
 
-uint8_t Battery::getSOC() {
+/**
+ * Get the current state of charge in 0.1%
+ */
+uint16_t Battery::getSOC() {
 	return soc;
 }
 
+/**
+ * Return the remaining ampere hours in the battery (in 0.1A)
+ */
 uint16_t Battery::getAmpereHours() {
 	return ampereHours;
 }

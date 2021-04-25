@@ -21,8 +21,8 @@ public:
 	bool isFullyCharged();
 	bool isEmpty();
 
-	void setSOC(uint8_t soc);
-	uint8_t getSOC();
+	void setSOC(uint16_t soc);
+	uint16_t getSOC();
 	uint16_t getAmpereHours();
 	void setCurrent(int16_t current);
 	int16_t getCurrent();
@@ -34,9 +34,9 @@ public:
 private:
 	uint32_t timestamp;
 	uint32_t restTimestamp;
-	uint8_t soc;
+	uint16_t soc; // in 0.1%
 	int32_t ampereMilliseconds;
-	uint16_t ampereHours;
+	uint16_t ampereHours; // in 0.1Ah
 	int16_t current; // in A
 	float voltage; // in V
 	float voltageSCC; // in V
