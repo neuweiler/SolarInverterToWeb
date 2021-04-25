@@ -37,11 +37,12 @@ Inverter::Inverter() {
 
 	queryMode = STATUS;
 	timestamp = 0;
-	cutoofTime = 0;
+	cutoffTime = 0;
 	maxSolarPower = 1000;
 
 	floatOverrideActive = false;
 	overDischargeProtectionActive = false;
+	floatVoltage = 0;
 }
 
 Inverter::~Inverter() {
@@ -147,7 +148,7 @@ bool Inverter::adjustFloatVoltage() {
 		floatOverrideActive = false;
 		setFloatVoltage(config.batteryVoltageFloat);
 	} else if (!floatOverrideActive && config.batterySocTriggerFloatOverride > 0
-			&& battery.getSOC() < config.batterySocTriggerFloatOverride) {
+			&& battery.getSOC() < config.batterySocTriggerFloatOverride * 10) {
 		floatOverrideActive = true;
 		setFloatVoltage(config.batteryVoltageFullCharge);
 	} else {
@@ -158,6 +159,7 @@ bool Inverter::adjustFloatVoltage() {
 
 void Inverter::setFloatVoltage(float voltage) {
 	logger.info("setting float voltage to %2.1fV", voltage);
+	floatVoltage = voltage;
 	sprintf(buffer, "PBFT%2.1f", voltage);
 	sendCommand(buffer);
 	queryMode = IGNORE;
@@ -427,10 +429,13 @@ String Inverter::toJSON() {
 	batteryNode["voltage"] = battery.getVoltage();
 	batteryNode["current"] = battery.getCurrent();
 	batteryNode["power"] = battery.getPower();
-	batteryNode["soc"] = battery.getSOC();
-	batteryNode["ampereHours"] = battery.getAmpereHours();
+	batteryNode["soc"] = (float) battery.getSOC() / 10.0f;
+	batteryNode["ampereHours"] = (float) battery.getAmpereHours() / 10.0f;
 	batteryNode["source"] = evalChargeSource();
 	batteryNode["floatCharge"] = (status & CHARGING_FLOATING ? "on" : "off");
+	batteryNode["floatVoltage"] = floatVoltage;
+	batteryNode["overdischargeProtection"] = overDischargeProtectionActive;
+	batteryNode["floatOverride"] = floatOverrideActive;
 
 	JsonObject pvNode = jsonDoc.createNestedObject("pv");
 	pvNode["voltage"] = pvVoltage;
@@ -553,13 +558,13 @@ void Inverter::calculateMaximumSolarPower() {
 		if (maxSolarPower >= config.powerAdjustment && maxSolarPower > config.minSolarPower) {
 			maxSolarPower -= config.powerAdjustment;
 		} else {
-			cutoofTime = (cutoofTime > 0 ? cutoofTime : millis());
+			cutoffTime = (cutoffTime > 0 ? cutoffTime : millis());
 			maxSolarPower = 0;
 		}
-	} else if (maxSolarPower == 0 && cutoofTime > 0) {
-		if ((cutoofTime + config.cutoffRetryTime * 1000) < millis() && busVoltage > config.minBusVoltage
-				&& battery.getSOC() > config.cutoffRetryMinBatterySoc) {
-			cutoofTime = 0;
+	} else if (maxSolarPower == 0 && cutoffTime > 0) {
+		if ((cutoffTime + config.cutoffRetryTime * 1000) < millis() && busVoltage > config.minBusVoltage
+				&& battery.getSOC() > config.cutoffRetryMinBatterySoc * 10) {
+			cutoffTime = 0;
 			maxSolarPower = config.initialSolarPower;
 		}
 	} else if (pvVoltage > config.maxPvVoltage) {

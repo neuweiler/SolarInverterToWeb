@@ -118,7 +118,7 @@ private:
     char input[INPUT_BUFFER_SIZE + 1];
     char buffer[20];
     uint32_t timestamp;
-    uint32_t cutoofTime;
+    uint32_t cutoffTime;
     uint16_t maxSolarPower;
 
     QueryMode queryMode;
@@ -142,6 +142,7 @@ private:
     uint8_t faultCode;
     bool floatOverrideActive;
     bool overDischargeProtectionActive;
+    float floatVoltage; // in V
 };
 
 extern Inverter inverter;
