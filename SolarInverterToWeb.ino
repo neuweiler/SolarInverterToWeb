@@ -9,15 +9,15 @@
 
 #include "Logger.h"
 #include "Inverter.h"
-#include "Station.h"
 #include "WebServer.h"
+#include "WLAN.h"
 
 void setup() {
 	logger.init();
 	logger.info("Starting solar monitor...");
 
 	config.init();
-	station.init();
+	wlan.init();
 	webServer.init();
 	inverter.init();
 }
@@ -25,5 +25,5 @@ void setup() {
 void loop() {
 	webServer.loop();
 	inverter.loop();
-	station.loop();
+	wlan.loop();
 }

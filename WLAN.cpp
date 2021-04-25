@@ -1,5 +1,5 @@
 /*
- * Station.cpp
+ * WLAN.cpp
  *
  * This class handles the connection to a consumer's WLAN and sends
  * the maximum available power to it. The purpose is to keep it's
@@ -15,12 +15,12 @@
  *      Author: Michael Neuweiler
  */
 
-#include "Station.h"
+#include "WLAN.h"
 
 /**
  * Constructor
  */
-Station::Station()
+WLAN::WLAN()
 {
     timestamp = 0;
     lastConnectionAttempt = 0;
@@ -28,14 +28,14 @@ Station::Station()
     stationConnected = false;
 }
 
-Station::~Station()
+WLAN::~WLAN()
 {
 }
 
 /**
  * Initialize the WiFi client and output ports.
  */
-void Station::init()
+void WLAN::init()
 {
     pinMode(LED_STATION, OUTPUT);
     pinMode(LED_AP, OUTPUT);
@@ -57,7 +57,7 @@ void Station::init()
 /**
  * The main processing logic.
  */
-void Station::loop()
+void WLAN::loop()
 {
     if (millis() - timestamp < config.wifiUpdateInterval) {
         return;
@@ -77,7 +77,7 @@ void Station::loop()
  * As in dual mode (WIFI_AP_STA) the auto reconnect has to be
  * disabled, we need to manually try to connect to the AP every 15sec.
  */
-void Station::checkConnection()
+void WLAN::checkConnection()
 {
     if (WiFi.isConnected()) {
         stationConnected = true;
@@ -97,5 +97,5 @@ void Station::checkConnection()
     digitalWrite(LED_AP, (apConnected ? HIGH : LOW));
 }
 
-Station station;
+WLAN wlan;
 

@@ -1,12 +1,12 @@
 /*
- * Station.h
+ * WLAN.h
  *
  *  Created on: 4 Aug 2019
  *      Author: Michael Neuweiler
  */
 
-#ifndef STATION_H_
-#define STATION_H_
+#ifndef WLAN_H_
+#define WLAN_H_
 
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
@@ -19,11 +19,11 @@
 #define LED_STATION D5
 #define LED_AP D6
 
-class Station
+class WLAN
 {
 public:
-    Station();
-    virtual ~Station();
+    WLAN();
+    virtual ~WLAN();
     void init();
     void loop();
 
@@ -35,6 +35,6 @@ private:
     bool apConnected, stationConnected;
 };
 
-extern Station station;
+extern WLAN wlan;
 
-#endif /* STATION_H_ */
+#endif /* WLAN_H_ */
