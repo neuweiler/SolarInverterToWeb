@@ -11,7 +11,6 @@
 #define FS_MAX_OPEN_FILES 20
 
 #include <ESP8266WebServer.h>
-#include <ArduinoOTA.h>
 #include <LittleFS.h>
 #include <FS.h>
 #include "Logger.h"
@@ -32,7 +31,6 @@ private:
     void upload(ESP8266WebServer& server, String requestUri, HTTPUpload& upload);
     void handleFileList();
     void handleFileUpload();
-    void setupOTA();
 	ESP8266WebServer *server;
 	File fsUploadFile;
     String uploadPath;

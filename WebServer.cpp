@@ -9,9 +9,6 @@
 
 #include "WebServer.h"
 
-#define DASHBOARD_FILE "dashboard.json"
-#define CONFIG_FILE "config.json"
-
 WebServer::WebServer()
 {
     uploadPath = "";
@@ -28,7 +25,6 @@ WebServer::~WebServer()
  */
 void WebServer::init()
 {
-    setupOTA();
     server->addHandler(this);
     server->serveStatic("/", LittleFS, "/");
     server->begin();
@@ -41,7 +37,6 @@ void WebServer::init()
 void WebServer::loop()
 {
     server->handleClient();
-    ArduinoOTA.handle();
 }
 
 /**
@@ -158,27 +153,6 @@ void WebServer::handleFileUpload()
         config.load(); // re-load the config from new file
     }
 }
-
-void WebServer::setupOTA()
-{
-    ArduinoOTA.onStart([]() {
-        logger.info("Start updating %s", (ArduinoOTA.getCommand() == U_FLASH ? "flash" : "filesystem"));
-    });
-	ArduinoOTA.onEnd([]() {
-        logger.info("Update finished");
-    });
-	ArduinoOTA.onError([](ota_error_t error) {
-        logger.error("Update Error[%u]: ", error);
-        if (error == OTA_AUTH_ERROR) logger.error("Auth Failed");
-        else if (error == OTA_BEGIN_ERROR) logger.error("Begin Failed");
-        else if (error == OTA_CONNECT_ERROR) logger.error("Connect Failed");
-        else if (error == OTA_RECEIVE_ERROR) logger.error("Receive Failed");
-        else if (error == OTA_END_ERROR) logger.error("End Failed");
-    });
-    ArduinoOTA.begin();
-    logger.info("OTA initialized");
-}
-
 
 WebServer webServer;
 

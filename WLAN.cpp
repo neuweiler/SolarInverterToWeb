@@ -51,7 +51,7 @@ void WLAN::init()
     WiFi.softAP(config.wifiApSsid.c_str(), config.wifiApPassword.c_str());
     logger.info("started WiFi AP %s on ip %s", config.wifiApSsid.c_str(), WiFi.softAPIP().toString().c_str());
 
-    MDNS.begin(config.wifiApSsid.c_str());
+    setupOTA();
 }
 
 /**
@@ -59,12 +59,13 @@ void WLAN::init()
  */
 void WLAN::loop()
 {
+    ArduinoOTA.handle();
+
     if (millis() - timestamp < config.wifiUpdateInterval) {
         return;
     }
 
     checkConnection();
-    MDNS.update();
 
     timestamp = millis();
 }
@@ -97,5 +98,27 @@ void WLAN::checkConnection()
     digitalWrite(LED_AP, (apConnected ? HIGH : LOW));
 }
 
-WLAN wlan;
+void WLAN::setupOTA()
+{
+	ArduinoOTA.setHostname("solar");
 
+	ArduinoOTA.onStart([]() {
+        logger.info("Start updating %s", (ArduinoOTA.getCommand() == U_FLASH ? "flash" : "filesystem"));
+    });
+	ArduinoOTA.onEnd([]() {
+        logger.info("Update finished");
+    });
+	ArduinoOTA.onError([](ota_error_t error) {
+        logger.error("Update Error[%u]: ", error);
+        if (error == OTA_AUTH_ERROR) logger.error("Auth Failed");
+        else if (error == OTA_BEGIN_ERROR) logger.error("Begin Failed");
+        else if (error == OTA_CONNECT_ERROR) logger.error("Connect Failed");
+        else if (error == OTA_RECEIVE_ERROR) logger.error("Receive Failed");
+        else if (error == OTA_END_ERROR) logger.error("End Failed");
+    });
+
+	ArduinoOTA.begin(true);
+    logger.info("OTA initialized");
+}
+
+WLAN wlan;

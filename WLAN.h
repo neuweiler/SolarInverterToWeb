@@ -10,8 +10,8 @@
 
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
-#include <ESP8266mDNS.h>
 #include <WiFiClient.h>
+#include <ArduinoOTA.h>
 
 #include "Logger.h"
 #include "Inverter.h"
@@ -29,6 +29,7 @@ public:
 
 private:
     void checkConnection();
+    void setupOTA();
 
     uint32_t timestamp;
     uint32_t lastConnectionAttempt;
