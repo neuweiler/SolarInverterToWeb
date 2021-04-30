@@ -22,7 +22,6 @@
  */
 WLAN::WLAN()
 {
-    timestamp = 0;
     lastConnectionAttempt = 0;
     apConnected = false;
     stationConnected = false;
@@ -41,15 +40,28 @@ void WLAN::init()
     pinMode(LED_AP, OUTPUT);
 
     WiFi.persistent(false); // prevent flash memory wear ! (https://github.com/esp8266/Arduino/issues/1054)
-    WiFi.mode(WIFI_AP_STA); // set as AP and as client
-    WiFi.setAutoReconnect(false); // auto-reconnect tries every 1sec, messes up soft-ap (can't connect)
-    WiFi.begin(config.wifiSsid.c_str(), config.wifiPassword.c_str());
-    logger.info("started WiFi Station for SSID %s", config.wifiSsid.c_str());
+    if (config.wifiStationSsid[0]) {
+        WiFi.mode(WIFI_AP_STA); // set as AP and as client
+        WiFi.setAutoReconnect(false); // auto-reconnect tries every 1sec, messes up soft-ap (can't connect)
+        WiFi.begin(config.wifiStationSsid, config.wifiStationPassword);
+        logger.info("started WiFi Station for SSID %s", config.wifiStationSsid);
+    } else {
+        WiFi.mode(WIFI_AP); // set as AP only
+    }
 
     // setup own AccessPoint
-    WiFi.hostname("solar");
-    WiFi.softAP(config.wifiApSsid.c_str(), config.wifiApPassword.c_str());
-    logger.info("started WiFi AP %s on ip %s", config.wifiApSsid.c_str(), WiFi.softAPIP().toString().c_str());
+    WiFi.hostname(config.wifiHostname);
+    WiFi.softAP(config.wifiApSsid, config.wifiApPassword, config.wifiApChannel);
+	delay(100); // wait for SYSTEM_EVENT_AP_START
+
+    IPAddress localIp;
+    localIp.fromString(config.wifiApAddress);
+    IPAddress gateway;
+    gateway.fromString(config.wifiApGateway);
+    IPAddress subnet;
+    subnet.fromString(config.wifiApNetmask);
+    WiFi.softAPConfig(localIp, gateway, subnet);
+    logger.info("started WiFi AP %s on ip %s, channel %d", config.wifiApSsid, WiFi.softAPIP().toString().c_str(), config.wifiApChannel);
 
     setupOTA();
 }
@@ -60,14 +72,7 @@ void WLAN::init()
 void WLAN::loop()
 {
     ArduinoOTA.handle();
-
-    if (millis() - timestamp < config.wifiUpdateInterval) {
-        return;
-    }
-
     checkConnection();
-
-    timestamp = millis();
 }
 
 /**
@@ -85,9 +90,9 @@ void WLAN::checkConnection()
     } else {
         stationConnected = false;
         // we try to (re)establish connection every 15sec, this allows softAP to work (although it gets blocked for 1-2sec)
-        if (millis() - lastConnectionAttempt > config.wifiReconnectInterval) {
-            logger.info("attempting to (re)connect to %s", config.wifiSsid.c_str());
-            WiFi.begin(config.wifiSsid.c_str(), config.wifiPassword.c_str());
+        if (config.wifiStationSsid[0] && millis() - lastConnectionAttempt > config.wifiStationReconnectInterval) {
+            logger.info("attempting to (re)connect to %s", config.wifiStationSsid);
+            WiFi.begin(config.wifiStationSsid, config.wifiStationPassword);
             lastConnectionAttempt = millis();
         }
     }
@@ -100,7 +105,7 @@ void WLAN::checkConnection()
 
 void WLAN::setupOTA()
 {
-	ArduinoOTA.setHostname("solar");
+	ArduinoOTA.setHostname(config.wifiHostname);
 
 	ArduinoOTA.onStart([]() {
         logger.info("Start updating %s", (ArduinoOTA.getCommand() == U_FLASH ? "flash" : "filesystem"));

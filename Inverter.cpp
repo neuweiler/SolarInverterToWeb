@@ -64,7 +64,7 @@ void Inverter::init() {
  * The main processing logic, called by the program's loop().
  */
 void Inverter::loop() {
-	if (timestamp + config.inverterUpdateInterval > millis())
+	if (timestamp + config.inverterInterval > millis())
 		return;
 
 	if (readResponse()) {

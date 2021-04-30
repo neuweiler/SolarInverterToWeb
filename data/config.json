@@ -24,7 +24,7 @@
         "min": 320
       }
     },
-    "cutoffRetry" : {
+    "cutoffRetry": {
       "time": 300,
       "minBatterySoc": 50
     }
@@ -47,15 +47,19 @@
     }
   },
   "wifi": {
-    "ssid": "Wifi, the final frontier...",
-    "password": "makeITso",
-    "interval": {
-      "update": 2000,
-      "reconnect": 15000
+    "hostname": "solar",
+    "station": {
+      "ssid": "",
+      "password": "",
+      "reconnectInterval": 15000
     },
     "ap": {
       "ssid": "solar",
-      "password": "inverter"
+      "password": "inverter",
+      "channel": 7,
+      "address": "192.168.4.1",
+      "gateway": "192.168.4.1",
+      "netmask": "255.255.255.0"
     }
   }
 }

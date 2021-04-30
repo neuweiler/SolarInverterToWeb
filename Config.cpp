@@ -27,7 +27,7 @@ void Config::load() {
     if (error)
         logger.error("Failed to parse file, using default configuration");
 
-    inverterUpdateInterval = doc["inverter"]["interval"] | 300;
+    inverterInterval = doc["inverter"]["interval"] | 300;
     initialSolarPower = doc["inverter"]["pv"]["power"]["initial"] | 1000;
     pvOutPowerTolerance = doc["inverter"]["pv"]["power"]["tolerance"] | 100;
     minSolarPower = doc["inverter"]["pv"]["power"]["min"] | 400;
@@ -53,20 +53,23 @@ void Config::load() {
     batteryRestCurrent = doc["battery"]["soc"]["restCurrent"] | 10;
     batterySocTriggerFloatOverride = doc["battery"]["soc"]["triggerFloatOverride"] | 0;
 
-    wifiSsid = String(doc["wifi"]["ssid"] | "myStation");
-    wifiPassword = String(doc["wifi"]["password"] | "stationPasswd");
-    wifiUpdateInterval = doc["wifi"]["interval"]["update"] | 2000;
-    wifiReconnectInterval = doc["wifi"]["interval"]["reconnect"] | 15000;
-
-    wifiApSsid = String(doc["wifi"]["ap"]["ssid"] | "solar");
-    wifiApPassword = String(doc["wifi"]["ap"]["password"] | "inverter");
+    wifiHostname = doc["wifi"]["hostname"] | "solar";
+    wifiStationSsid = doc["wifi"]["station"]["ssid"] | "";
+    wifiStationPassword = doc["wifi"]["station"]["password"] | "";
+    wifiStationReconnectInterval = doc["wifi"]["station"]["reconnectInterval"] | 15000;
+    wifiApSsid = doc["wifi"]["ap"]["ssid"] | "solar";
+    wifiApPassword = doc["wifi"]["ap"]["password"] | "inverter";
+    wifiApChannel = doc["wifi"]["ap"]["channel"] | 13;
+    wifiApAddress= doc["wifi"]["ap"]["address"] | "192.168.4.1";
+    wifiApGateway= doc["wifi"]["ap"]["gateway"] | "192.168.4.1";
+    wifiApNetmask= doc["wifi"]["ap"]["netmask"] | "255.255.255.0";
 
     file.close();
 }
 
 void Config::print()
 {
-    logger.console("inverterUpdateInterval : %dms", inverterUpdateInterval);
+    logger.console("inverterInterval : %dms", inverterInterval);
     logger.console("initialSolarPower: %dW", initialSolarPower);
     logger.console("pvOutPowerTolerance: %dW", pvOutPowerTolerance);
     logger.console("minSolarPower: %dW", minSolarPower);
@@ -89,14 +92,16 @@ void Config::print()
     logger.console("batteryRestDuration: %dsec", batteryRestDuration);
     logger.console("batteryRestCurrent: %dA", batteryRestCurrent);
 
-    logger.console("wifiSsid: %s", wifiSsid.c_str());
-    logger.console("wifiPassword: %s", wifiPassword.c_str());
-    logger.console("wifiUpdateInterval: %d", wifiUpdateInterval);
-    logger.console("wifiReconnectInterval: %d", wifiReconnectInterval);
-
-    logger.console("wifiApSsid: %s", wifiApSsid.c_str());
-    logger.console("wifiApPassword: %s", wifiApPassword.c_str());
+    logger.console("wifiHostname: %s", wifiHostname);
+    logger.console("wifiStationSsid: %s", wifiStationSsid);
+    logger.console("wifiStationPassword: %s", wifiStationPassword);
+    logger.console("wifiStationReconnectInterval: %d", wifiStationReconnectInterval);
+    logger.console("wifiApSsid: %s", wifiApSsid);
+    logger.console("wifiApPassword: %s", wifiApPassword);
+    logger.console("wifiApChannel: %d", wifiApChannel);
+    logger.console("wifiApAddress: %s", wifiApAddress);
+    logger.console("wifiApGateway: %s", wifiApGateway);
+    logger.console("wifiApNetmask: %s", wifiApNetmask);
 }
 
 Config config;
-

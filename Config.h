@@ -32,7 +32,7 @@ public:
 
     // Inverter
     uint16_t initialSolarPower; // initial Power to start consumer with (in W)
-    uint16_t inverterUpdateInterval; // at which interval the next data is requested from inverter (in ms)
+    uint16_t inverterInterval; // at which interval the next data is requested from inverter (in ms)
     uint16_t pvOutPowerTolerance; // tolerance of higher out power against PV input (in W)
     int16_t maxBatteryDischargeCurrent; // allowed discharge current before throttling down consumer power (in A)
     int16_t minBusVoltage; // minimum bus voltage allowed before throttling down consumer power (in V)
@@ -57,15 +57,17 @@ public:
     uint8_t batteryRestDuration; // if voltage < batteryVoltageEmpty this is the duration where load has to be below restCurrent before we declare the battery empty (in sec)
     uint8_t batteryRestCurrent; // max current where we still consider the battery to be at rest with no signifikant load (in A)
 
-    // Station
-    String wifiSsid;
-    String wifiPassword;
-    uint16_t wifiUpdateInterval; // at which interval the next update is sent to the consumer (in ms)
-    uint16_t wifiReconnectInterval; // at which interval the next connection attempt to the station is made (in ms)
-
-    // Webserver
-    String wifiApSsid;
-    String wifiApPassword;
+    // Wifi
+    const char *wifiHostname; // the host name
+    const char *wifiStationSsid; // the ssid of the network we want to connect to, if empty no connection is attempted
+    const char *wifiStationPassword; // the password of the network we want to connect to
+    uint16_t wifiStationReconnectInterval; // at which interval the next connection attempt to the network is made (in ms)
+    const char *wifiApSsid; // the ssid of the network we provide
+    const char *wifiApPassword; // the password of the network we provide
+    uint8_t wifiApChannel; // the channel of the network we provide
+    const char *wifiApAddress; // the ip address of the network we provide
+    const char *wifiApGateway; // the gateway address of the network we provide
+    const char *wifiApNetmask; // the netmask of the network we provide
 
 private:
     void print();

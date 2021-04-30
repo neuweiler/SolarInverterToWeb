@@ -31,7 +31,6 @@ private:
     void checkConnection();
     void setupOTA();
 
-    uint32_t timestamp;
     uint32_t lastConnectionAttempt;
     bool apConnected, stationConnected;
 };
