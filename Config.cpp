@@ -22,10 +22,11 @@ void Config::load() {
         logger.error("Failed to open %s", CONFIG_FILE);
     }
 
-    StaticJsonDocument < 1024 > doc;
+    StaticJsonDocument < 2048 > doc;
     DeserializationError error = deserializeJson(doc, file);
-    if (error)
-        logger.error("Failed to parse file, using default configuration");
+	if (error) {
+		logger.error("could not parse config: %s", error.f_str());
+	}
 
     inverterInterval = doc["inverter"]["interval"] | 300;
     initialSolarPower = doc["inverter"]["pv"]["power"]["initial"] | 1000;
