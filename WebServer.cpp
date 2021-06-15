@@ -54,6 +54,9 @@ bool WebServer::canHandle(HTTPMethod requestMethod, String requestUri)
     if (requestMethod == HTTP_POST && requestUri.equals("/upload")) {
         return true;
     }
+    if (requestMethod == HTTP_POST && requestUri.equals("/grid")) {
+        return true;
+    }
     return false;
 }
 
@@ -79,8 +82,12 @@ bool WebServer::handle(ESP8266WebServer &server, HTTPMethod requestMethod, Strin
     	server.sendHeader("Location", String("/list?dir=" + uploadPath), true);
     	server.send(302, "text/plain", "");
     }
-    else
+    else if (requestUri.equals("/grid")) {
+    	inverter.switchToGrid(3600);
+    	server.send(200, "text/plain", "Switched to grid mode for 1h");
+    } else {
         return false;
+    }
 
     return true;
 }
