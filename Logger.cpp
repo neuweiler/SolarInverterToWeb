@@ -122,7 +122,7 @@ boolean Logger::isDebug() {
  * Supports printf() syntax
  */
 void Logger::log(LogLevel level, String format, va_list args) {
-	String logLevel = "DEBUG";
+	String logLevel;
 
 	switch (level) {
 	case Info:
@@ -133,6 +133,9 @@ void Logger::log(LogLevel level, String format, va_list args) {
 		break;
 	case Error:
 		logLevel = "ERROR";
+		break;
+	default:
+		logLevel = "DEBUG";
 		break;
 	}
 	vsnprintf(msgBuffer, LOG_BUFFER_SIZE, format.c_str(), args);
