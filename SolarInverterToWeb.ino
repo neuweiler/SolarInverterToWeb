@@ -19,6 +19,7 @@ void setup() {
 	config.init();
 	wlan.init();
 	webServer.init();
+	battery.init();
 	inverter.init();
 }
 
