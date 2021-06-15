@@ -8,6 +8,8 @@
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
+#define FS_MAX_OPEN_FILES 20
+
 #include <Arduino.h>
 #include <LittleFS.h>
 #include <FS.h>

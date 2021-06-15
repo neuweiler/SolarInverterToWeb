@@ -8,8 +8,6 @@
 #ifndef WEBSERVER_H_
 #define WEBSERVER_H_
 
-#define FS_MAX_OPEN_FILES 20
-
 #include <ESP8266WebServer.h>
 #include <LittleFS.h>
 #include <FS.h>
