@@ -87,6 +87,7 @@ public:
     void calculateMaximumSolarPower();
     uint16_t getMaximumSolarPower();
     uint16_t getMaximumSolarCurrent();
+    void switchToGrid(uint16_t duration);
 
 private:
     enum QueryMode

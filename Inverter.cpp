@@ -55,7 +55,6 @@ void Inverter::init() {
 	Serial.begin(2400);
 
 	timestamp = millis();
-	battery.init();
 
 	maxSolarPower = config.initialSolarPower;
 }
@@ -69,6 +68,21 @@ void Inverter::loop() {
 
 	if (readResponse()) {
 		processResponse();
+
+		switch (queryMode) {
+		case MODE:
+		case IGNORE:
+			queryMode = STATUS;
+			break;
+		case STATUS:
+			battery.loop();
+			calculateMaximumSolarPower();
+			queryMode = WARNING;
+			break;
+		case WARNING:
+			queryMode = MODE;
+			break;
+		}
 	}
 
 	if (!adjustFloatVoltage() && !overDischargeProtection()) {
@@ -126,19 +140,14 @@ void Inverter::processResponse() {
 	switch (queryMode) {
 	case MODE:
 		parseModeResponse(input);
-		queryMode = STATUS;
 		break;
 	case STATUS:
 		parseStatusResponse(input);
-		battery.loop();
-		queryMode = WARNING;
 		break;
 	case WARNING:
 		parseWarningResponse(input);
-		queryMode = MODE;
 		break;
 	case IGNORE:
-		queryMode = STATUS;
 		break;
 	}
 }
@@ -163,6 +172,10 @@ void Inverter::setFloatVoltage(float voltage) {
 	sprintf(buffer, "PBFT%2.1f", voltage);
 	sendCommand(buffer);
 	queryMode = IGNORE;
+}
+
+void Inverter::switchToGrid(uint16_t duration) {
+	//TODO implement
 }
 
 bool Inverter::overDischargeProtection() {
@@ -192,7 +205,7 @@ bool Inverter::overDischargeProtection() {
  */
 void Inverter::parseModeResponse(char *input) {
 	if (input[0] != '(' || strlen(input) < 2 || strstr(input, "(NAK") != NULL) {
-		logger.info("unable to parse '%s", input);
+		logger.warn("unable to parse '%s", input);
 		return;
 	}
 	input++; // skip the (
@@ -235,7 +248,7 @@ void Inverter::parseModeResponse(char *input) {
  */
 void Inverter::parseStatusResponse(char *input) {
 	if (input[0] != '(' || strlen(input) < 10 || strchr(input, ' ') == NULL) {
-		logger.info("unable to parse '%s", input);
+		logger.warn("unable to parse '%s", input);
 		return;
 	}
 	input++; // skip the (
@@ -278,7 +291,7 @@ void Inverter::parseStatusResponse(char *input) {
  */
 void Inverter::parseWarningResponse(char *input) {
 	if (input[0] != '(' || strlen(input) < 30 || strstr(input, "(NAK") != NULL) {
-		logger.info("unable to parse '%s", input);
+		logger.warn("unable to parse '%s", input);
 		return;
 	}
 	input++; // skip the (
@@ -475,10 +488,15 @@ String Inverter::evalChargeSource() {
 
 String Inverter::evalLoadSource() {
 	if (status & LOAD) {
-		if (mode & LINE) {
+		switch (mode) {
+		case LINE:
 			return "Grid";
-		} else if (mode & BATTERY) {
+		case BATTERY:
 			return "Battery";
+		case BYPASS:
+			return "Bypass";
+		default:
+			break;
 		}
 	}
 	return "-";
@@ -545,6 +563,8 @@ void Inverter::evalWarning(JsonArray &array) {
 		array.add("Battery voltage to low to charge");
 	if (warning & DC_DC_OVERCURRENT)
 		array.add("DC/DC converter over-current");
+	if (status & BATTERY_VOLTAGE_TOO_STEADY)
+		array.add("Battery voltage too steady");
 }
 
 /**
