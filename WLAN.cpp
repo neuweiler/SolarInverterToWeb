@@ -41,28 +41,15 @@ void WLAN::init()
 
     WiFi.persistent(false); // prevent flash memory wear ! (https://github.com/esp8266/Arduino/issues/1054)
     if (config.wifiStationSsid[0]) {
-        WiFi.mode(WIFI_AP_STA); // set as AP and as client
-        WiFi.setAutoReconnect(false); // auto-reconnect tries every 1sec, messes up soft-ap (can't connect)
-        WiFi.begin(config.wifiStationSsid, config.wifiStationPassword);
-        logger.info("started WiFi Station for SSID %s", config.wifiStationSsid);
+		setupStation();
     } else {
         WiFi.mode(WIFI_AP); // set as AP only
     }
 
-    // setup own AccessPoint
     WiFi.hostname(config.wifiHostname);
-    WiFi.softAP(config.wifiApSsid, config.wifiApPassword, config.wifiApChannel);
-	delay(100); // wait for SYSTEM_EVENT_AP_START
 
-    IPAddress localIp;
-    localIp.fromString(config.wifiApAddress);
-    IPAddress gateway;
-    gateway.fromString(config.wifiApGateway);
-    IPAddress subnet;
-    subnet.fromString(config.wifiApNetmask);
-    WiFi.softAPConfig(localIp, gateway, subnet);
-    logger.info("started WiFi AP %s on ip %s, channel %d", config.wifiApSsid, WiFi.softAPIP().toString().c_str(), config.wifiApChannel);
-
+	setupAccessPoint();
+	setupNAT();
     setupOTA();
 }
 
@@ -101,6 +88,54 @@ void WLAN::checkConnection()
     // indicate connection status via LEDs
     digitalWrite(LED_STATION, (stationConnected ? HIGH : LOW));
     digitalWrite(LED_AP, (apConnected ? HIGH : LOW));
+}
+
+void WLAN::setupStation() {
+	WiFi.mode(WIFI_AP_STA); // set as AP and as client
+	WiFi.setAutoReconnect(false); // auto-reconnect tries every 1sec, messes up soft-ap (can't connect)
+	WiFi.begin(config.wifiStationSsid, config.wifiStationPassword);
+
+	uint8_t i = 60;
+	while (!WiFi.isConnected() && i-- > 0) {
+		logger.console(".");
+		delay(500);
+	}
+
+	if (WiFi.isConnected()) {
+	    // give DNS servers to AP side (for NAT)
+	    dhcps_set_dns(0, WiFi.dnsIP(0));
+	    dhcps_set_dns(1, WiFi.dnsIP(1));
+	}
+
+	logger.info("started WiFi Station: %s (dns: %s / %s)\n", WiFi.localIP().toString().c_str(),
+			WiFi.dnsIP(0).toString().c_str(), WiFi.dnsIP(1).toString().c_str());
+}
+
+void WLAN::setupAccessPoint() {
+	IPAddress localIp;
+	localIp.fromString(config.wifiApAddress);
+	IPAddress gateway;
+	gateway.fromString(config.wifiApGateway);
+	IPAddress subnet;
+	subnet.fromString(config.wifiApNetmask);
+
+	WiFi.softAPConfig(localIp, gateway, subnet);
+	WiFi.softAP(config.wifiApSsid, config.wifiApPassword, config.wifiApChannel);
+	delay(100); // wait for SYSTEM_EVENT_AP_START
+
+	logger.info("started WiFi AP %s on ip %s, channel %d", config.wifiApSsid, WiFi.softAPIP().toString().c_str(), config.wifiApChannel);
+}
+
+void WLAN::setupNAT() {
+	err_t ret = ip_napt_init(NAPT, NAPT_PORT);
+	logger.debug("ip_napt_init: %d (OK=%d)", ret);
+	if (ret == ERR_OK) {
+		ret = ip_napt_enable_no(SOFTAP_IF, 1);
+		logger.debug("ip_napt_enable_no: %d", ret);
+	}
+	if (ret != ERR_OK) {
+		logger.error("NAPT initialization failed\n");
+	}
 }
 
 void WLAN::setupOTA()
