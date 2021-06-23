@@ -98,7 +98,7 @@ void Inverter::loop() {
 void Inverter::sendCommand(String command) {
 	String crc = CRCUtil::getCRC(command);
 
-	logger.info("sending command: %s", command.c_str());
+	logger.info(F("sending command: %s"), command.c_str());
 
 	Serial.print(command);
 	Serial.print(crc);
@@ -111,13 +111,13 @@ void Inverter::sendCommand(String command) {
 void Inverter::sendQuery() {
 	switch (queryMode) {
 	case MODE:
-		sendCommand("QMOD");
+		sendCommand(F("QMOD"));
 		break;
 	case STATUS:
-		sendCommand("QPIGS");
+		sendCommand(F("QPIGS"));
 		break;
 	case WARNING:
-		sendCommand("QPIWS");
+		sendCommand(F("QPIWS"));
 		break;
 	case IGNORE:
 		break;
@@ -167,7 +167,7 @@ bool Inverter::adjustFloatVoltage() {
 }
 
 void Inverter::setFloatVoltage(float voltage) {
-	logger.info("setting float voltage to %2.1fV", voltage);
+	logger.info(F("setting float voltage to %2.1fV"), voltage);
 	floatVoltage = voltage;
 	sprintf(buffer, "PBFT%2.1f", voltage);
 	sendCommand(buffer);
@@ -180,17 +180,17 @@ void Inverter::switchToGrid(uint16_t duration) {
 
 bool Inverter::overDischargeProtection() {
 	if (!overDischargeProtectionActive && config.batteryOverDischargeProtection && battery.isEmpty()) {
-		logger.info("activating over-discharge protection");
+		logger.info(F("activating over-discharge protection"));
 		overDischargeProtectionActive = true;
-		sendCommand("PCP02"); // set charger prio to solar and utility
+		sendCommand(F("PCP02")); // set charger prio to solar and utility
 		delay(100);
-		sendCommand("POP01"); // set output prio to SUB
+		sendCommand(F("POP01")); // set output prio to SUB
 	} else if (overDischargeProtectionActive && battery.getVoltage() >= config.batteryVoltageNominal) {
-		logger.info("deactivating over-discharge protection");
+		logger.info(F("deactivating over-discharge protection"));
 		overDischargeProtectionActive = false;
-		sendCommand("POP02"); // set output prio to SBU
+		sendCommand(F("POP02")); // set output prio to SBU
 		delay(100);
-		sendCommand("PCP03"); // set charger prio to solar only
+		sendCommand(F("PCP03")); // set charger prio to solar only
 	} else {
 		return false;
 	}
@@ -205,7 +205,7 @@ bool Inverter::overDischargeProtection() {
  */
 void Inverter::parseModeResponse(char *input) {
 	if (input[0] != '(' || strlen(input) < 2 || strstr(input, "(NAK") != NULL) {
-		logger.warn("unable to parse '%s", input);
+		logger.warn(F("unable to parse '%s"), input);
 		return;
 	}
 	input++; // skip the (
@@ -248,7 +248,7 @@ void Inverter::parseModeResponse(char *input) {
  */
 void Inverter::parseStatusResponse(char *input) {
 	if (input[0] != '(' || strlen(input) < 10 || strchr(input, ' ') == NULL) {
-		logger.warn("unable to parse '%s", input);
+		logger.warn(F("unable to parse '%s"), input);
 		return;
 	}
 	input++; // skip the (
@@ -291,7 +291,7 @@ void Inverter::parseStatusResponse(char *input) {
  */
 void Inverter::parseWarningResponse(char *input) {
 	if (input[0] != '(' || strlen(input) < 30 || strstr(input, "(NAK") != NULL) {
-		logger.warn("unable to parse '%s", input);
+		logger.warn(F("unable to parse '%s"), input);
 		return;
 	}
 	input++; // skip the (
@@ -422,50 +422,49 @@ uint8_t Inverter::parseStatus2() {
  * Convert the actual values into a JSON string.
  */
 String Inverter::toJSON() {
-	StaticJsonDocument<2048> jsonDoc;
-
+	jsonDoc.clear();
 	jsonDoc["time"] = millis() / 1000;
 
-	JsonObject gridNode = jsonDoc.createNestedObject("grid");
-	gridNode["voltage"] = gridVoltage;
-	gridNode["frequency"] = gridFrequency;
+	JsonObject gridNode = jsonDoc.createNestedObject(F("grid"));
+	gridNode[F("voltage")] = gridVoltage;
+	gridNode[F("frequency")] = gridFrequency;
 
-	JsonObject outNode = jsonDoc.createNestedObject("out");
-	outNode["voltage"] = outVoltage;
-	outNode["frequency"] = outFrequency;
-	outNode["powerApparent"] = outPowerApparent;
-	outNode["powerActive"] = outPowerActive;
-	outNode["load"] = outLoad;
-	outNode["source"] = evalLoadSource();
+	JsonObject outNode = jsonDoc.createNestedObject(F("out"));
+	outNode[F("voltage")] = outVoltage;
+	outNode[F("frequency")] = outFrequency;
+	outNode[F("powerApparent")] = outPowerApparent;
+	outNode[F("powerActive")] = outPowerActive;
+	outNode[F("load")] = outLoad;
+	outNode[F("source")] = evalLoadSource();
 
-	JsonObject batteryNode = jsonDoc.createNestedObject("battery");
-	batteryNode["voltage"] = battery.getVoltage();
-	batteryNode["current"] = battery.getCurrent();
-	batteryNode["power"] = battery.getPower();
-	batteryNode["soc"] = (float) battery.getSOC() / 10.0f;
-	batteryNode["ampereHours"] = (float) battery.getAmpereHours() / 10.0f;
-	batteryNode["source"] = evalChargeSource();
-	batteryNode["floatCharge"] = (status & CHARGING_FLOATING ? "on" : "off");
-	batteryNode["floatVoltage"] = floatVoltage;
-	batteryNode["overdischargeProtection"] = overDischargeProtectionActive;
-	batteryNode["floatOverride"] = floatOverrideActive;
+	JsonObject batteryNode = jsonDoc.createNestedObject(F("battery"));
+	batteryNode[F("voltage")] = battery.getVoltage();
+	batteryNode[F("current")] = battery.getCurrent();
+	batteryNode[F("power")] = battery.getPower();
+	batteryNode[F("soc")] = (float) battery.getSOC() / 10.0f;
+	batteryNode[F("ampereHours")] = (float) battery.getAmpereHours() / 10.0f;
+	batteryNode[F("source")] = evalChargeSource();
+	batteryNode[F("floatCharge")] = (status & CHARGING_FLOATING ? F("on") : F("off"));
+	batteryNode[F("floatVoltage")] = floatVoltage;
+	batteryNode[F("overdischargeProtection")] = overDischargeProtectionActive;
+	batteryNode[F("floatOverride")] = floatOverrideActive;
 
-	JsonObject pvNode = jsonDoc.createNestedObject("pv");
-	pvNode["voltage"] = pvVoltage;
-	pvNode["current"] = pvCurrent;
-	pvNode["power"] = pvChargingPower;
-	pvNode["maxPower"] = getMaximumSolarPower();
-	pvNode["maxCurrent"] = getMaximumSolarCurrent();
+	JsonObject pvNode = jsonDoc.createNestedObject(F("pv"));
+	pvNode[F("voltage")] = pvVoltage;
+	pvNode[F("current")] = pvCurrent;
+	pvNode[F("power")] = pvChargingPower;
+	pvNode[F("maxPower")] = getMaximumSolarPower();
+	pvNode[F("maxCurrent")] = getMaximumSolarCurrent();
 
-	JsonObject systemNode = jsonDoc.createNestedObject("system");
-	systemNode["version"] = eepromVersion;
-	systemNode["mode"] = modeString[mode];
-	systemNode["switch"] = (status & SWITCHED_ON ? "on" : "off");
-	systemNode["voltage"] = busVoltage;
-	systemNode["temperature"] = temperature;
-	systemNode["fanCurrent"] = fanCurrent;
-	systemNode["faultCode"] = faultCode;
-	JsonArray warn = systemNode.createNestedArray("warning");
+	JsonObject systemNode = jsonDoc.createNestedObject(F("system"));
+	systemNode[F("version")] = eepromVersion;
+	systemNode[F("mode")] = modeString[mode];
+	systemNode[F("switch")] = (status & SWITCHED_ON ? F("on") : F("off"));
+	systemNode[F("voltage")] = busVoltage;
+	systemNode[F("temperature")] = temperature;
+	systemNode[F("fanCurrent")] = fanCurrent;
+	systemNode[F("faultCode")] = faultCode;
+	JsonArray warn = systemNode.createNestedArray(F("warning"));
 	evalWarning(warn);
 
 	String str;
@@ -476,11 +475,11 @@ String Inverter::toJSON() {
 String Inverter::evalChargeSource() {
 	if (status & CHARGING) {
 		if ((status & CHARGING_SOLAR) && (status & CHARGING_GRID)) {
-			return "Solar and Grid";
+			return F("Solar and Grid");
 		} else if (status & CHARGING_SOLAR) {
-			return "Solar";
+			return F("Solar");
 		} else if (status & CHARGING_GRID) {
-			return "Grid";
+			return F("Grid");
 		}
 	}
 	return "-";
@@ -490,11 +489,11 @@ String Inverter::evalLoadSource() {
 	if (status & LOAD) {
 		switch (mode) {
 		case LINE:
-			return "Grid";
+			return F("Grid");
 		case BATTERY:
-			return "Battery";
+			return F("Battery");
 		case BYPASS:
-			return "Bypass";
+			return F("Bypass");
 		default:
 			break;
 		}
@@ -504,67 +503,67 @@ String Inverter::evalLoadSource() {
 
 void Inverter::evalWarning(JsonArray &array) {
 	if (warning & INVERTER_FAULT)
-		array.add("Inverter fault");
+		array.add(F("Inverter fault"));
 	if (warning & BUS_OVERVOLTAGE)
-		array.add("Bus over-voltage");
+		array.add(F("Bus over-voltage"));
 	if (warning & BUS_UNDERVOLTAGE)
-		array.add("Bus under-voltage");
+		array.add(F("Bus under-voltage"));
 	if (warning & BUS_SOFT_FAIL)
-		array.add("Bus soft fail");
+		array.add(F("Bus soft fail"));
 	if (warning & GRID_FAIL)
-		array.add("Grid fail");
+		array.add(F("Grid fail"));
 	if (warning & OPV_SHORT)
-		array.add("OPV short");
+		array.add(F("OPV short"));
 	if (warning & INVERTER_UNDERVOLTAGE)
-		array.add("Inverter under-voltage");
+		array.add(F("Inverter under-voltage"));
 	if (warning & INVERTER_OVERVOLTAGE)
-		array.add("Inverter over-voltage");
+		array.add(F("Inverter over-voltage"));
 	if (warning & OVER_TEMPERATURE)
-		array.add("Over temperature");
+		array.add(F("Over temperature"));
 	if (warning & FAN_LOCKED)
-		array.add("Fan locked");
+		array.add(F("Fan locked"));
 	if (warning & BATTERY_OVERVOLTAGE)
-		array.add("Battery over-voltage");
+		array.add(F("Battery over-voltage"));
 	if (warning & BATTERY_UNDERVOLTAGE)
-		array.add("Battery under-voltage");
+		array.add(F("Battery under-voltage"));
 	if (warning & BATTERY_OVERCHARGE)
-		array.add("Battery over-charge");
+		array.add(F("Battery over-charge"));
 	if (warning & BATTERY_SHUTDOWN)
-		array.add("Battery shutdown");
+		array.add(F("Battery shutdown"));
 	if (warning & BATTERY_DERATING)
-		array.add("Battery derating");
+		array.add(F("Battery derating"));
 	if (warning & OVER_LOAD)
-		array.add("Over-load");
+		array.add(F("Over-load"));
 	if (warning & EEPROM_FAULT)
-		array.add("EEPROM fault");
+		array.add(F("EEPROM fault"));
 	if (warning & INVERTER_OVER_CURRENT)
-		array.add("Inverter over-current");
+		array.add(F("Inverter over-current"));
 	if (warning & INVERTER_SOFT_FAIL)
-		array.add("Inverter soft fail");
+		array.add(F("Inverter soft fail"));
 	if (warning & SELF_TEST_FAIL)
-		array.add("Self-test fail");
+		array.add(F("Self-test fail"));
 	if (warning & OP_DC_OVER_VOLTAGE)
-		array.add("OP DC over-voltage");
+		array.add(F("OP DC over-voltage"));
 	if (warning & BATTERY_OPEN)
-		array.add("Battery open");
+		array.add(F("Battery open"));
 	if (warning & CURRENT_SENSOR_FAIL)
-		array.add("Current sensor fail");
+		array.add(F("Current sensor fail"));
 	if (warning & BATTERY_SHORT)
-		array.add("Battery short");
+		array.add(F("Battery short"));
 	if (warning & POWER_LIMIT)
-		array.add("Power limit");
+		array.add(F("Power limit"));
 	if (warning & PV_VOLTAGE_HIGH)
-		array.add("PV voltage high");
+		array.add(F("PV voltage high"));
 	if (warning & MPPT_OVERLOAD_FAULT)
-		array.add("MPPT over-load fault");
+		array.add(F("MPPT over-load fault"));
 	if (warning & MPPT_OVERLOAD_WARNING)
-		array.add("MPPT over-load warning");
+		array.add(F("MPPT over-load warning"));
 	if (warning & BATTER_TOO_LOW_TO_CHARGE)
-		array.add("Battery voltage to low to charge");
+		array.add(F("Battery voltage to low to charge"));
 	if (warning & DC_DC_OVERCURRENT)
-		array.add("DC/DC converter over-current");
+		array.add(F("DC/DC converter over-current"));
 	if (status & BATTERY_VOLTAGE_TOO_STEADY)
-		array.add("Battery voltage too steady");
+		array.add(F("Battery voltage too steady"));
 }
 
 /**

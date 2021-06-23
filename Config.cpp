@@ -13,7 +13,6 @@ void Config::init()
 {
 	LittleFS.begin();
     load();
-    print();
 }
 
 void Config::load() {
@@ -25,84 +24,47 @@ void Config::load() {
     StaticJsonDocument < 2048 > doc;
     DeserializationError error = deserializeJson(doc, file);
 	if (error) {
-		logger.error("could not parse config: %s", error.f_str());
+		logger.error(F("could not parse config: %s"), error.f_str());
 	}
 
-    inverterInterval = doc["inverter"]["interval"] | 300;
-    initialSolarPower = doc["inverter"]["pv"]["power"]["initial"] | 1000;
-    pvOutPowerTolerance = doc["inverter"]["pv"]["power"]["tolerance"] | 100;
-    minSolarPower = doc["inverter"]["pv"]["power"]["min"] | 400;
-    maxSolarPower = doc["inverter"]["pv"]["power"]["max"] | 3000;
-    powerAdjustment = doc["inverter"]["pv"]["power"]["adjustmentStep"] | 25;
-    minPvVoltage = doc["inverter"]["pv"]["voltage"]["min"] | 320.0f;
-    maxPvVoltage = doc["inverter"]["pv"]["voltage"]["max"] | 325.0f;
-    maxBatteryDischargeCurrent = (doc["inverter"]["battery"]["dischargeCurrent"]["max"] | 4) * -1;
-    minBusVoltage = doc["inverter"]["bus"]["voltage"]["min"] | 390;
-    cutoffRetryTime = doc["inverter"]["cutoffRetry"]["time"] | 300;
-    cutoffRetryMinBatterySoc = doc["inverter"]["cutoffRetry"]["minBatterySoc"] | 50;
+    inverterInterval = doc[F("inverter")][F("interval")] | 300;
+    initialSolarPower = doc[F("inverter")][F("pv")][F("power")][F("initial")] | 1000;
+    pvOutPowerTolerance = doc[F("inverter")][F("pv")][F("power")][F("tolerance")] | 100;
+    minSolarPower = doc[F("inverter")][F("pv")][F("power")][F("min")] | 400;
+    maxSolarPower = doc[F("inverter")][F("pv")][F("power")][F("max")] | 3000;
+    powerAdjustment = doc[F("inverter")][F("pv")][F("power")][F("adjustmentStep")] | 25;
+    minPvVoltage = doc[F("inverter")][F("pv")][F("voltage")][F("min")] | 320.0f;
+    maxPvVoltage = doc[F("inverter")][F("pv")][F("voltage")][F("max")] | 325.0f;
+    maxBatteryDischargeCurrent = (doc[F("inverter")][F("battery")][F("dischargeCurrent")][F("max")] | 4) * -1;
+    minBusVoltage = doc[F("inverter")][F("bus")][F("voltage")][F("min")] | 390;
+    cutoffRetryTime = doc[F("inverter")][F("cutoffRetry")][F("time")] | 300;
+    cutoffRetryMinBatterySoc = doc[F("inverter")][F("cutoffRetry")][F("minBatterySoc")] | 50;
 
 
-    batteryCapacity = doc["battery"]["capacity"] | 100;
-    batteryType = doc["battery"]["type"] | BatteryType::LiIon;
-    batteryVoltageFullCharge = doc["battery"]["voltage"]["full"] | 28.4f;
-    batteryVoltageNominal = doc["battery"]["voltage"]["nominal"] | 25.6f;
-    batteryVoltageEmpty = doc["battery"]["voltage"]["empty"] | 21.6f;
-    batteryVoltageFloat = doc["battery"]["voltage"]["float"] | 24.5f;
-    batteryOverDischargeProtection = doc["battery"]["overDischargeProtection"] | false;
-    batterySocCalculateInternally = doc["battery"]["soc"]["calculateInternally"] | true;
-    batteryRestDuration = doc["battery"]["soc"]["restDuration"] | 5;
-    batteryRestCurrent = doc["battery"]["soc"]["restCurrent"] | 10;
-    batterySocTriggerFloatOverride = doc["battery"]["soc"]["triggerFloatOverride"] | 0;
+    batteryCapacity = doc[F("battery")][F("capacity")] | 100;
+    batteryType = doc[F("battery")][F("type")] | BatteryType::LiIon;
+    batteryVoltageFullCharge = doc[F("battery")][F("voltage")][F("full")] | 28.4f;
+    batteryVoltageNominal = doc[F("battery")][F("voltage")][F("nominal")] | 25.6f;
+    batteryVoltageEmpty = doc[F("battery")][F("voltage")][F("empty")] | 21.6f;
+    batteryVoltageFloat = doc[F("battery")][F("voltage")][F("float")] | 24.5f;
+    batteryOverDischargeProtection = doc[F("battery")][F("overDischargeProtection")] | false;
+    batterySocCalculateInternally = doc[F("battery")][F("soc")][F("calculateInternally")] | true;
+    batteryRestDuration = doc[F("battery")][F("soc")][F("restDuration")] | 5;
+    batteryRestCurrent = doc[F("battery")][F("soc")][F("restCurrent")] | 10;
+    batterySocTriggerFloatOverride = doc[F("battery")][F("soc")][F("triggerFloatOverride")] | 0;
 
-    wifiHostname = doc["wifi"]["hostname"] | "solar";
-    wifiStationSsid = doc["wifi"]["station"]["ssid"] | "";
-    wifiStationPassword = doc["wifi"]["station"]["password"] | "";
-    wifiStationReconnectInterval = doc["wifi"]["station"]["reconnectInterval"] | 15000;
-    wifiApSsid = doc["wifi"]["ap"]["ssid"] | "solar";
-    wifiApPassword = doc["wifi"]["ap"]["password"] | "inverter";
-    wifiApChannel = doc["wifi"]["ap"]["channel"] | 13;
-    wifiApAddress= doc["wifi"]["ap"]["address"] | "192.168.4.1";
-    wifiApGateway= doc["wifi"]["ap"]["gateway"] | "192.168.4.1";
-    wifiApNetmask= doc["wifi"]["ap"]["netmask"] | "255.255.255.0";
+    wifiHostname = doc[F("wifi")][F("hostname")] | "solar";
+    wifiStationSsid = doc[F("wifi")][F("station")][F("ssid")] | "";
+    wifiStationPassword = doc[F("wifi")][F("station")][F("password")] | "";
+    wifiStationReconnectInterval = doc[F("wifi")][F("station")][F("reconnectInterval")] | 15000;
+    wifiApSsid = doc[F("wifi")][F("ap")][F("ssid")] | "solar";
+    wifiApPassword = doc[F("wifi")][F("ap")][F("password")] | "inverter";
+    wifiApChannel = doc[F("wifi")][F("ap")][F("channel")] | 13;
+    wifiApAddress= doc[F("wifi")][F("ap")][F("address")] | "192.168.4.1";
+    wifiApGateway= doc[F("wifi")][F("ap")][F("gateway")] | "192.168.4.1";
+    wifiApNetmask= doc[F("wifi")][F("ap")][F("netmask")] | "255.255.255.0";
 
     file.close();
-}
-
-void Config::print()
-{
-    logger.console("inverterInterval : %dms", inverterInterval);
-    logger.console("initialSolarPower: %dW", initialSolarPower);
-    logger.console("pvOutPowerTolerance: %dW", pvOutPowerTolerance);
-    logger.console("minSolarPower: %dW", minSolarPower);
-    logger.console("maxSolarPower: %dW", maxSolarPower);
-    logger.console("powerAdjustment: %dW", powerAdjustment);
-    logger.console("minPvVoltage: %fV", minPvVoltage);
-    logger.console("maxPvVoltage: %fV", maxPvVoltage);
-    logger.console("maxBatteryDischargeCurrent: %dA", maxBatteryDischargeCurrent);
-    logger.console("minBusVoltage: %dV", minBusVoltage);
-    logger.console("cutoffRetryTime: %dsec", cutoffRetryTime);
-    logger.console("cutoffRetryMinBatterySoc: %d%%", cutoffRetryMinBatterySoc);
-
-    logger.console("batteryCapacity: %dAh", batteryCapacity);
-    logger.console("batteryType: %d", batteryType);
-    logger.console("batteryVoltageFullCharge: %fV", batteryVoltageFullCharge);
-    logger.console("batteryVoltageNominal: %fV", batteryVoltageNominal);
-    logger.console("batteryVoltageEmpty: %fV", batteryVoltageEmpty);
-    logger.console("batteryVoltageFloat: %fV", batteryVoltageFloat);
-    logger.console("batterySocTriggerFloatOverride: %f%%", batterySocTriggerFloatOverride);
-    logger.console("batteryRestDuration: %dsec", batteryRestDuration);
-    logger.console("batteryRestCurrent: %dA", batteryRestCurrent);
-
-    logger.console("wifiHostname: %s", wifiHostname);
-    logger.console("wifiStationSsid: %s", wifiStationSsid);
-    logger.console("wifiStationPassword: %s", wifiStationPassword);
-    logger.console("wifiStationReconnectInterval: %d", wifiStationReconnectInterval);
-    logger.console("wifiApSsid: %s", wifiApSsid);
-    logger.console("wifiApPassword: %s", wifiApPassword);
-    logger.console("wifiApChannel: %d", wifiApChannel);
-    logger.console("wifiApAddress: %s", wifiApAddress);
-    logger.console("wifiApGateway: %s", wifiApGateway);
-    logger.console("wifiApNetmask: %s", wifiApNetmask);
 }
 
 Config config;

@@ -126,25 +126,25 @@ void Logger::log(LogLevel level, String format, va_list args) {
 
 	switch (level) {
 	case Info:
-		logLevel = "INFO";
+		logLevel = F("INFO");
 		break;
 	case Warn:
-		logLevel = "WARNING";
+		logLevel = F("WARNING");
 		break;
 	case Error:
-		logLevel = "ERROR";
+		logLevel = F("ERROR");
 		break;
 	default:
-		logLevel = "DEBUG";
+		logLevel = F("DEBUG");
 		break;
 	}
 	vsnprintf(msgBuffer, LOG_BUFFER_SIZE, format.c_str(), args);
 
 	// print to serial
 	Serial1.print(millis());
-	Serial1.print(" - ");
+	Serial1.print(F(" - "));
 	Serial1.print(logLevel);
-	Serial1.print(": ");
+	Serial1.print(F(": "));
 	Serial1.println(msgBuffer);
 }
 

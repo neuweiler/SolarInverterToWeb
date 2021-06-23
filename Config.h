@@ -70,9 +70,6 @@ public:
     const char *wifiApAddress; // the ip address of the network we provide
     const char *wifiApGateway; // the gateway address of the network we provide
     const char *wifiApNetmask; // the netmask of the network we provide
-
-private:
-    void print();
 };
 
 extern Config config;

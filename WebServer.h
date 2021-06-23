@@ -27,6 +27,7 @@ private:
     bool canUpload(String requestUri);
     bool handle(ESP8266WebServer &server, HTTPMethod requestMethod, String requestUri) override;
     void upload(ESP8266WebServer& server, String requestUri, HTTPUpload& upload);
+
     void handleFileList();
     void handleFileUpload();
 	ESP8266WebServer *server;

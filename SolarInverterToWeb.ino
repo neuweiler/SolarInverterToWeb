@@ -12,9 +12,14 @@
 #include "WebServer.h"
 #include "WLAN.h"
 
+void printHeapInfo(uint8_t i) {
+	Serial.printf("%d: free: %u, frag: %u, maxfree: %u\n", i,
+	ESP.getFreeHeap(), ESP.getHeapFragmentation(), ESP.getMaxFreeBlockSize());
+}
+
 void setup() {
 	logger.init();
-	logger.info("Starting solar monitor...");
+	logger.info(F("Starting solar monitor..."));
 
 	config.init();
 	wlan.init();
@@ -27,4 +32,6 @@ void loop() {
 	webServer.loop();
 	inverter.loop();
 	wlan.loop();
+//printHeapInfo(9);
+//delay(100);
 }

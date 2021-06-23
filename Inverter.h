@@ -144,6 +144,7 @@ private:
     bool floatOverrideActive;
     bool overDischargeProtectionActive;
     float floatVoltage; // in V
+	StaticJsonDocument<2048> jsonDoc;
 };
 
 extern Inverter inverter;

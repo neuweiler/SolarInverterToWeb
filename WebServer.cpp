@@ -28,7 +28,7 @@ void WebServer::init()
     server->addHandler(this);
     server->serveStatic("/", LittleFS, "/");
     server->begin();
-    logger.info("started webserver");
+    logger.info(F("started webserver"));
 }
 
 /**
@@ -42,26 +42,27 @@ void WebServer::loop()
 /**
  * Find out if we can handle the request.
  */
-bool WebServer::canHandle(HTTPMethod requestMethod, String requestUri)
+bool WebServer::canHandle(HTTPMethod method, String uri)
 {
     if (logger.isDebug())
-        logger.debug("http request: %d, url: %s", requestMethod, requestUri.c_str());
+        logger.debug(F("http request: %d, url: %s"), method, uri.c_str());
 
-    if (requestMethod == HTTP_GET && (requestUri.equals("/data") || requestUri.equals("/list")
-    		|| requestUri.equals("/maxCurrent"))) {
+    if (method == HTTP_GET && (uri.equals(F("/data")) || uri.equals(F("/list"))
+    		|| uri.equals(F("/maxCurrent")))) {
         return true;
     }
-    if (requestMethod == HTTP_POST && requestUri.equals("/upload")) {
+    if (method == HTTP_POST && uri.equals(F("/upload"))) {
         return true;
     }
-    if (requestMethod == HTTP_POST && requestUri.equals("/grid")) {
+    if (method == HTTP_POST && uri.equals(F("/grid"))) {
         return true;
     }
     return false;
 }
 
-bool WebServer::canUpload(String requestUri) {
-    if (!canHandle(HTTP_POST, requestUri))
+bool WebServer::canUpload(String uri)
+{
+    if (!canHandle(HTTP_POST, uri))
         return false;
 
     return true;
@@ -72,19 +73,18 @@ bool WebServer::canUpload(String requestUri) {
  */
 bool WebServer::handle(ESP8266WebServer &server, HTTPMethod requestMethod, String requestUri)
 {
-    if (requestUri.equals("/data"))
-        server.send(200, "application/json", inverter.toJSON());
-    if (requestUri.equals("/maxCurrent"))
-        server.send(200, "application/json", String("{\"maxCurrent\": ") + inverter.getMaximumSolarCurrent() + "}");
-    else if (requestUri.equals("/list"))
+    if (requestUri.equals(F("/data"))) {
+    	server.send(200, F("application/json"), inverter.toJSON());
+    } else if (requestUri.equals(F("/maxCurrent"))) {
+        server.send(200, F("application/json"), String(F("{\"maxCurrent\": ")) + inverter.getMaximumSolarCurrent() + "}");
+    } else if (requestUri.equals(F("/list"))) {
         handleFileList();
-    else if (requestUri.equals("/upload")) {
-    	server.sendHeader("Location", String("/list?dir=" + uploadPath), true);
-    	server.send(302, "text/plain", "");
-    }
-    else if (requestUri.equals("/grid")) {
+    } else if (requestUri.equals(F("/upload"))) {
+    	server.sendHeader(F("Location"), String("/list?dir=" + uploadPath), true);
+    	server.send(302, F("text/plain"), "");
+    } else if (requestUri.equals(F("/grid"))) {
     	inverter.switchToGrid(3600);
-    	server.send(200, "text/plain", "Switched to grid mode for 1h");
+    	server.send(200, F("text/plain"), F("Switched to grid mode for 1h"));
     } else {
         return false;
     }
@@ -92,7 +92,8 @@ bool WebServer::handle(ESP8266WebServer &server, HTTPMethod requestMethod, Strin
     return true;
 }
 
-void WebServer::upload(ESP8266WebServer& server, String requestUri, HTTPUpload& upload) {
+void WebServer::upload(ESP8266WebServer& server, String requestUri, HTTPUpload& upload)
+{
     handleFileUpload();
 }
 
@@ -123,21 +124,21 @@ void WebServer::handleFileList()
         File file = dir.openFile("r");
         time_t time = file.getLastWrite();
         String prefix = (file.isDirectory() ? "/list?dir=" : "");
-        output += "<tr>";
-        output += "<td><a href='" + prefix + path + file.name() + "'>" + file.name() + "</a></td>";
-        output += "<td style='text-align: right;'>" + (file.isDirectory() ? "(dir)" : String(file.size())) + "</td>";
-        output += "<td style='text-align: right;'>" + String(ctime(&time)) + "</td>";
-        output += "</tr>";
+        output += F("<tr>");
+        output += "<td><a href='" + prefix + path + file.name() + "'>" + file.name() + F("</a></td>");
+        output += "<td style='text-align: right;'>" + (file.isDirectory() ? F("(dir)") : String(file.size())) + F("</td>");
+        output += "<td style='text-align: right;'>" + String(ctime(&time)) + F("</td>");
+        output += F("</tr>");
         file.close();
     }
-    output += "</table>";
-    output += "<form action='/upload' method='post' enctype='multipart/form-data'>";
-    output += "Upload File: <input type='file' id='uploadFile' name='filename'>";
-    output += "<input type='submit'>";
-    output += "</form>";
-    output += "</body></html>";
+    output += F("</table>");
+    output += F("<form action='/upload' method='post' enctype='multipart/form-data'>");
+    output += F("Upload File: <input type='file' id='uploadFile' name='filename'>");
+    output += F("<input type='submit'>");
+    output += F("</form>");
+    output += F("</body></html>");
 
-    server->send(200, "text/html", output);
+    server->send(200, F("text/html"), output);
 }
 
 /**
@@ -162,4 +163,3 @@ void WebServer::handleFileUpload()
 }
 
 WebServer webServer;
-

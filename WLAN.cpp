@@ -78,7 +78,7 @@ void WLAN::checkConnection()
         stationConnected = false;
         // we try to (re)establish connection every 15sec, this allows softAP to work (although it gets blocked for 1-2sec)
         if (config.wifiStationSsid[0] && millis() - lastConnectionAttempt > config.wifiStationReconnectInterval) {
-            logger.info("attempting to (re)connect to %s", config.wifiStationSsid);
+            logger.info(F("attempting to (re)connect to %s"), config.wifiStationSsid);
             WiFi.begin(config.wifiStationSsid, config.wifiStationPassword);
             lastConnectionAttempt = millis();
         }
@@ -103,11 +103,11 @@ void WLAN::setupStation() {
 
 	if (WiFi.isConnected()) {
 	    // give DNS servers to AP side (for NAT)
-	    dhcps_set_dns(0, WiFi.dnsIP(0));
-	    dhcps_set_dns(1, WiFi.dnsIP(1));
+		dhcps_set_dns(0, WiFi.dnsIP(0));
+		dhcps_set_dns(1, WiFi.dnsIP(1));
 	}
 
-	logger.info("started WiFi Station: %s (dns: %s / %s)\n", WiFi.localIP().toString().c_str(),
+	logger.info(F("started WiFi Station: %s (dns: %s / %s)\n"), WiFi.localIP().toString().c_str(),
 			WiFi.dnsIP(0).toString().c_str(), WiFi.dnsIP(1).toString().c_str());
 }
 
@@ -123,18 +123,18 @@ void WLAN::setupAccessPoint() {
 	WiFi.softAP(config.wifiApSsid, config.wifiApPassword, config.wifiApChannel);
 	delay(100); // wait for SYSTEM_EVENT_AP_START
 
-	logger.info("started WiFi AP %s on ip %s, channel %d", config.wifiApSsid, WiFi.softAPIP().toString().c_str(), config.wifiApChannel);
+	logger.info(F("started WiFi AP %s on ip %s, channel %d"), config.wifiApSsid, WiFi.softAPIP().toString().c_str(), config.wifiApChannel);
 }
 
 void WLAN::setupNAT() {
 	err_t ret = ip_napt_init(NAPT, NAPT_PORT);
-	logger.debug("ip_napt_init: %d (OK=%d)", ret);
+	logger.debug(F("ip_napt_init: %d (OK=%d)"), ret);
 	if (ret == ERR_OK) {
 		ret = ip_napt_enable_no(SOFTAP_IF, 1);
-		logger.debug("ip_napt_enable_no: %d", ret);
+		logger.debug(F("ip_napt_enable_no: %d"), ret);
 	}
 	if (ret != ERR_OK) {
-		logger.error("NAPT initialization failed\n");
+		logger.error(F("NAPT initialization failed\n"));
 	}
 }
 
@@ -143,10 +143,10 @@ void WLAN::setupOTA()
 	ArduinoOTA.setHostname(config.wifiHostname);
 
 	ArduinoOTA.onStart([]() {
-        logger.info("Start updating %s", (ArduinoOTA.getCommand() == U_FLASH ? "flash" : "filesystem"));
+        logger.info(F("Start updating %s"), (ArduinoOTA.getCommand() == U_FLASH ? "flash" : "filesystem"));
     });
 	ArduinoOTA.onEnd([]() {
-        logger.info("Update finished");
+        logger.info(F("Update finished"));
     });
 	ArduinoOTA.onError([](ota_error_t error) {
         logger.error("Update Error[%u]: ", error);
@@ -158,7 +158,7 @@ void WLAN::setupOTA()
     });
 
 	ArduinoOTA.begin(true);
-    logger.info("OTA initialized");
+    logger.info(F("OTA initialized"));
 }
 
 WLAN wlan;

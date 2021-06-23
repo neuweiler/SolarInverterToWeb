@@ -44,7 +44,7 @@
 		<link>
 			<name>libraries/ArduinoJson</name>
 			<type>2</type>
-			<locationURI>ECLIPSE_HOME/arduinoPlugin/libraries/ArduinoJson/6.17.1</locationURI>
+			<locationURI>ECLIPSE_HOME/arduinoPlugin/libraries/ArduinoJson/6.18.0</locationURI>
 		</link>
 		<link>
 			<name>libraries/ArduinoOTA</name>
