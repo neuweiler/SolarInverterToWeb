@@ -50,3 +50,16 @@ Example JSON output:
 ```
 
 Be aware that you have to test the integration by yourself and make sure no device gets damaged. The code is provided as-is and the author takes no responsibility for any damage caused by its use.
+
+Recommended setup:
+* ESP8266 v2.7.4, WeMos D1 R	1
+* Upload Speed: 921600
+* Debug Port: disabled
+* Flash Size: 4MB (FS: 2MB OTA:~1019KB)
+* Exceptions: Disabled (new can abort)
+* IwIP Variant: v2 Higher Bandwidth
+* Debug Level: None
+* SSL Support: Basic SSL ciphers
+* VTables: IRAM
+* Erase Flash: Only Sketch
+* CPU Frequency: 160MHz
