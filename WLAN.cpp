@@ -36,8 +36,8 @@ WLAN::~WLAN()
  */
 void WLAN::init()
 {
-    pinMode(LED_STATION, OUTPUT);
-    pinMode(LED_AP, OUTPUT);
+    pinMode(PIN_LED_STATION, OUTPUT);
+    pinMode(PIN_LED_AP, OUTPUT);
 
     WiFi.persistent(false); // prevent flash memory wear ! (https://github.com/esp8266/Arduino/issues/1054)
     if (config.wifiStationSsid[0]) {
@@ -49,8 +49,6 @@ void WLAN::init()
     WiFi.hostname(config.wifiHostname);
 
 	setupAccessPoint();
-	setupNAT();
-    setupOTA();
 }
 
 /**
@@ -58,7 +56,6 @@ void WLAN::init()
  */
 void WLAN::loop()
 {
-    ArduinoOTA.handle();
     checkConnection();
 }
 
@@ -86,29 +83,15 @@ void WLAN::checkConnection()
     apConnected = WiFi.softAPgetStationNum() > 0;
 
     // indicate connection status via LEDs
-    digitalWrite(LED_STATION, (stationConnected ? HIGH : LOW));
-    digitalWrite(LED_AP, (apConnected ? HIGH : LOW));
+    digitalWrite(PIN_LED_STATION, (stationConnected ? HIGH : LOW));
+    digitalWrite(PIN_LED_AP, (apConnected ? HIGH : LOW));
 }
 
 void WLAN::setupStation() {
 	WiFi.mode(WIFI_AP_STA); // set as AP and as client
 	WiFi.setAutoReconnect(false); // auto-reconnect tries every 1sec, messes up soft-ap (can't connect)
 	WiFi.begin(config.wifiStationSsid, config.wifiStationPassword);
-
-	uint8_t i = 60;
-	while (!WiFi.isConnected() && i-- > 0) {
-		logger.console(".");
-		delay(500);
-	}
-
-	if (WiFi.isConnected()) {
-	    // give DNS servers to AP side (for NAT)
-		dhcps_set_dns(0, WiFi.dnsIP(0));
-		dhcps_set_dns(1, WiFi.dnsIP(1));
-	}
-
-	logger.info(F("started WiFi Station: %s (dns: %s / %s)\n"), WiFi.localIP().toString().c_str(),
-			WiFi.dnsIP(0).toString().c_str(), WiFi.dnsIP(1).toString().c_str());
+	logger.info(F("started WiFi Station: %s"), WiFi.localIP().toString().c_str());
 }
 
 void WLAN::setupAccessPoint() {
@@ -124,41 +107,6 @@ void WLAN::setupAccessPoint() {
 	delay(100); // wait for SYSTEM_EVENT_AP_START
 
 	logger.info(F("started WiFi AP %s on ip %s, channel %d"), config.wifiApSsid, WiFi.softAPIP().toString().c_str(), config.wifiApChannel);
-}
-
-void WLAN::setupNAT() {
-	err_t ret = ip_napt_init(NAPT, NAPT_PORT);
-	logger.debug(F("ip_napt_init: %d (OK=%d)"), ret);
-	if (ret == ERR_OK) {
-		ret = ip_napt_enable_no(SOFTAP_IF, 1);
-		logger.debug(F("ip_napt_enable_no: %d"), ret);
-	}
-	if (ret != ERR_OK) {
-		logger.error(F("NAPT initialization failed\n"));
-	}
-}
-
-void WLAN::setupOTA()
-{
-	ArduinoOTA.setHostname(config.wifiHostname);
-
-	ArduinoOTA.onStart([]() {
-        logger.info(F("Start updating %s"), (ArduinoOTA.getCommand() == U_FLASH ? "flash" : "filesystem"));
-    });
-	ArduinoOTA.onEnd([]() {
-        logger.info(F("Update finished"));
-    });
-	ArduinoOTA.onError([](ota_error_t error) {
-        logger.error("Update Error[%u]: ", error);
-        if (error == OTA_AUTH_ERROR) logger.error("Auth Failed");
-        else if (error == OTA_BEGIN_ERROR) logger.error("Begin Failed");
-        else if (error == OTA_CONNECT_ERROR) logger.error("Connect Failed");
-        else if (error == OTA_RECEIVE_ERROR) logger.error("Receive Failed");
-        else if (error == OTA_END_ERROR) logger.error("End Failed");
-    });
-
-	ArduinoOTA.begin(true);
-    logger.info(F("OTA initialized"));
 }
 
 WLAN wlan;

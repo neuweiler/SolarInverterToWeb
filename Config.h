@@ -10,6 +10,10 @@
 
 #define FS_MAX_OPEN_FILES 20
 
+#define PIN_LED_STATION D5
+#define PIN_LED_AP D6
+#define PIN_POWER_OVERRIDE D7
+
 #include <Arduino.h>
 #include <LittleFS.h>
 #include <FS.h>
