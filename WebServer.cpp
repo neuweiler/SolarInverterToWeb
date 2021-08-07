@@ -25,6 +25,8 @@ WebServer::~WebServer()
  */
 void WebServer::init()
 {
+    pinMode(PIN_POWER_OVERRIDE, INPUT);
+
     server->addHandler(this);
     server->serveStatic("/", LittleFS, "/");
     server->begin();
@@ -76,7 +78,8 @@ bool WebServer::handle(ESP8266WebServer &server, HTTPMethod requestMethod, Strin
     if (requestUri.equals(F("/data"))) {
     	server.send(200, F("application/json"), inverter.toJSON());
     } else if (requestUri.equals(F("/maxCurrent"))) {
-        server.send(200, F("application/json"), String(F("{\"maxCurrent\": ")) + inverter.getMaximumSolarCurrent() + "}");
+    	uint16_t maxCurrent = digitalRead(PIN_POWER_OVERRIDE) == HIGH ? 0xffff : inverter.getMaximumSolarCurrent();
+        server.send(200, F("application/json"), String(F("{\"maxCurrent\": ")) + maxCurrent + "}");
     } else if (requestUri.equals(F("/list"))) {
         handleFileList();
     } else if (requestUri.equals(F("/upload"))) {
