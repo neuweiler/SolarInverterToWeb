@@ -3,7 +3,7 @@
     "interval": 300,
     "pv": {
       "power": {
-        "initial": 700,
+        "initial": 1840,
         "tolerance": 150,
         "min": 500,
         "max": 3000,
@@ -16,7 +16,7 @@
     },
     "battery": {
       "dischargeCurrent": {
-        "max": 5
+        "max": 9
       }
     },
     "bus": {
