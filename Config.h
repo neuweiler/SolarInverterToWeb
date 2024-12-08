@@ -10,8 +10,8 @@
 
 #define FS_MAX_OPEN_FILES 20
 
-#define PIN_LED_STATION D5
-#define PIN_LED_AP D6
+#define PIN_LED_WIFI_CONNECTED D5 // green LED
+#define PIN_LED_CLIENT_CONNECTED D6  // yellow LED
 #define PIN_POWER_OVERRIDE D7
 
 #include <Arduino.h>
@@ -49,6 +49,8 @@ public:
     uint16_t maxSolarPower; // maximum solar power to provide to the consumer (in W)
     uint32_t cutoffRetryTime; // time until a retry is started after a power cutoff due to minSolarPower (in sec)
     uint8_t cutoffRetryMinBatterySoc; // minimum battery soc to try a restart after power cutoff (in %)
+    uint8_t inputOverrideActivateSOC; // SOC at which input prio will switch to SUB (in 1%, 0 = disabled)
+    uint8_t inputOverrideDeactivateSOC; // SOC at which input prio will switch back to SBU (in 1%)
 
     // Battery
     uint16_t batteryCapacity; // the capacity of the battery (in Ah)
@@ -74,6 +76,7 @@ public:
     const char *wifiApAddress; // the ip address of the network we provide
     const char *wifiApGateway; // the gateway address of the network we provide
     const char *wifiApNetmask; // the netmask of the network we provide
+    bool wifiApNAT; // if NAT should be enabled in AP/Station mode to forward traffic to foreign AP
 };
 
 extern Config config;

@@ -38,8 +38,8 @@ void Config::load() {
     maxBatteryDischargeCurrent = (doc[F("inverter")][F("battery")][F("dischargeCurrent")][F("max")] | 4) * -1;
     minBusVoltage = doc[F("inverter")][F("bus")][F("voltage")][F("min")] | 390;
     cutoffRetryTime = doc[F("inverter")][F("cutoffRetry")][F("time")] | 300;
-    cutoffRetryMinBatterySoc = doc[F("inverter")][F("cutoffRetry")][F("minBatterySoc")] | 50;
-
+    inputOverrideActivateSOC = doc[F("inverter")][F("inputOverride")][F("activateSoc")] | 20;
+    inputOverrideDeactivateSOC = doc[F("inverter")][F("inputOverride")][F("deactivateSoc")] | 50;
 
     batteryCapacity = doc[F("battery")][F("capacity")] | 100;
     batteryType = doc[F("battery")][F("type")] | BatteryType::LiIon;
@@ -60,9 +60,10 @@ void Config::load() {
     wifiApSsid = doc[F("wifi")][F("ap")][F("ssid")] | "solar";
     wifiApPassword = doc[F("wifi")][F("ap")][F("password")] | "inverter";
     wifiApChannel = doc[F("wifi")][F("ap")][F("channel")] | 13;
-    wifiApAddress= doc[F("wifi")][F("ap")][F("address")] | "192.168.4.1";
-    wifiApGateway= doc[F("wifi")][F("ap")][F("gateway")] | "192.168.4.1";
-    wifiApNetmask= doc[F("wifi")][F("ap")][F("netmask")] | "255.255.255.0";
+    wifiApAddress = doc[F("wifi")][F("ap")][F("address")] | "192.168.4.1";
+    wifiApGateway = doc[F("wifi")][F("ap")][F("gateway")] | "192.168.4.1";
+    wifiApNetmask = doc[F("wifi")][F("ap")][F("netmask")] | "255.255.255.0";
+    wifiApNAT= doc[F("wifi")][F("ap")][F("NAT")] | false;
 
     file.close();
 }

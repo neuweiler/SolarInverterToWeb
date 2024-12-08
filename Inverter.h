@@ -87,7 +87,7 @@ public:
     void calculateMaximumSolarPower();
     uint16_t getMaximumSolarPower();
     uint16_t getMaximumSolarCurrent();
-    void switchToGrid(uint16_t duration);
+    void switchToGrid();
 
 private:
     enum QueryMode
@@ -115,6 +115,8 @@ private:
 	void processResponse();
 	bool adjustFloatVoltage();
 	bool overDischargeProtection();
+	bool adjustOutputPrio();
+	double round1(double value);
 
     char input[INPUT_BUFFER_SIZE + 1];
     char buffer[20];
@@ -134,7 +136,7 @@ private:
     uint16_t outPowerActive; // in W
     uint8_t outLoad; // in percent
     uint16_t busVoltage; // in V
-    uint16_t pvCurrent; // in A
+    float pvCurrent; // in A
     float pvVoltage; // in V
     uint16_t pvChargingPower; // in W
     float temperature; // in degree Celsius
@@ -143,6 +145,7 @@ private:
     uint8_t faultCode;
     bool floatOverrideActive;
     bool overDischargeProtectionActive;
+    bool inputOverrideActive;
     float floatVoltage; // in V
 	StaticJsonDocument<2048> jsonDoc;
 };

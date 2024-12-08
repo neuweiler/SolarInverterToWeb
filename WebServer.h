@@ -21,15 +21,14 @@ public:
 	virtual ~WebServer();
 	void init();
 	void loop();
+    bool canHandle(HTTPMethod method, const String& uri) override;
+    bool canUpload(const String& uri) override;
+    bool handle(ESP8266WebServer& server, HTTPMethod requestMethod, const String& requestUri) override;
+    void upload(ESP8266WebServer& server, const String& requestUri, HTTPUpload& upload) override;
 
 private:
-    bool canHandle(HTTPMethod requestMethod, String requestUri) override;
-    bool canUpload(String requestUri);
-    bool handle(ESP8266WebServer &server, HTTPMethod requestMethod, String requestUri) override;
-    void upload(ESP8266WebServer& server, String requestUri, HTTPUpload& upload);
-
+    void replyServerError(String msg);
     void handleFileList();
-    void handleFileUpload();
 	ESP8266WebServer *server;
 	File fsUploadFile;
     String uploadPath;

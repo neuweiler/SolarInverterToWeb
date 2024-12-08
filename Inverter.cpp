@@ -42,6 +42,7 @@ Inverter::Inverter() {
 
 	floatOverrideActive = false;
 	overDischargeProtectionActive = false;
+	inputOverrideActive = false;
 	floatVoltage = 0;
 }
 
@@ -52,7 +53,12 @@ Inverter::~Inverter() {
  * Initialize the Inverter.
  */
 void Inverter::init() {
-	Serial.begin(2400);
+//	Serial.begin(2400);
+
+	// get rid of boot-loader rubbish
+	Serial.write(13);
+	delay(200);
+	Serial.write(13);
 
 	timestamp = millis();
 
@@ -85,7 +91,7 @@ void Inverter::loop() {
 		}
 	}
 
-	if (!adjustFloatVoltage() && !overDischargeProtection()) {
+	if (!adjustFloatVoltage() && !overDischargeProtection() && !adjustOutputPrio()) {
 		sendQuery();
 	}
 
@@ -174,7 +180,7 @@ void Inverter::setFloatVoltage(float voltage) {
 	queryMode = IGNORE;
 }
 
-void Inverter::switchToGrid(uint16_t duration) {
+void Inverter::switchToGrid() {
 	//TODO implement
 }
 
@@ -183,14 +189,27 @@ bool Inverter::overDischargeProtection() {
 		logger.info(F("activating over-discharge protection"));
 		overDischargeProtectionActive = true;
 		sendCommand(F("PCP02")); // set charger prio to solar and utility
-		delay(100);
-		sendCommand(F("POP01")); // set output prio to SUB
 	} else if (overDischargeProtectionActive && battery.getVoltage() >= config.batteryVoltageNominal) {
 		logger.info(F("deactivating over-discharge protection"));
 		overDischargeProtectionActive = false;
-		sendCommand(F("POP02")); // set output prio to SBU
-		delay(100);
 		sendCommand(F("PCP03")); // set charger prio to solar only
+	} else {
+		return false;
+	}
+	queryMode = IGNORE;
+	return true;
+}
+
+bool Inverter::adjustOutputPrio() {
+	if (!inputOverrideActive && config.inputOverrideActivateSOC > 0 &&
+			battery.getSOC() < config.inputOverrideActivateSOC * 10) {
+		logger.info(F("changing input prio to SUB due to SOC of %d"), battery.getSOC() / 10);
+		inputOverrideActive = true;
+		sendCommand(F("POP01")); // set output prio to SUB (Solar, Utility, Battery)
+	} else if (inputOverrideActive && battery.getSOC() > config.inputOverrideDeactivateSOC * 10) {
+		logger.info(F("changing input prio to SBU due to SOC of %d"), battery.getSOC() / 10);
+		inputOverrideActive = false;
+		sendCommand(F("POP02")); // set output prio to SBU (Solar, Battery, Utility)
 	} else {
 		return false;
 	}
@@ -270,7 +289,7 @@ void Inverter::parseStatusResponse(char *input) {
 		batteryChargeCurrent = parseInt();
 		battery.setSOC(parseShort());
 		temperature = parseFloat();
-		pvCurrent = parseInt();
+		pvCurrent = parseFloat();
 		pvVoltage = parseFloat();
 		battery.setVoltageSCC(parseFloat());
 		batteryDischargeCurrent = parseInt();
@@ -426,32 +445,33 @@ String Inverter::toJSON() {
 	jsonDoc["time"] = millis() / 1000;
 
 	JsonObject gridNode = jsonDoc.createNestedObject(F("grid"));
-	gridNode[F("voltage")] = gridVoltage;
-	gridNode[F("frequency")] = gridFrequency;
+	gridNode[F("voltage")] = round1(gridVoltage);
+	gridNode[F("frequency")] = round1(gridFrequency);
 
 	JsonObject outNode = jsonDoc.createNestedObject(F("out"));
-	outNode[F("voltage")] = outVoltage;
-	outNode[F("frequency")] = outFrequency;
+	outNode[F("voltage")] = round1(outVoltage);
+	outNode[F("frequency")] = round1(outFrequency);
 	outNode[F("powerApparent")] = outPowerApparent;
 	outNode[F("powerActive")] = outPowerActive;
 	outNode[F("load")] = outLoad;
 	outNode[F("source")] = evalLoadSource();
+	outNode[F("mode")] = inputOverrideActive ? F("SUB") : F("SBU");
 
 	JsonObject batteryNode = jsonDoc.createNestedObject(F("battery"));
-	batteryNode[F("voltage")] = battery.getVoltage();
+	batteryNode[F("voltage")] = round1(battery.getVoltage());
 	batteryNode[F("current")] = battery.getCurrent();
 	batteryNode[F("power")] = battery.getPower();
-	batteryNode[F("soc")] = (float) battery.getSOC() / 10.0f;
-	batteryNode[F("ampereHours")] = (float) battery.getAmpereHours() / 10.0f;
+	batteryNode[F("soc")] = round1((float) battery.getSOC() / 10.0f);
+	batteryNode[F("ampereHours")] = round1((float) battery.getAmpereHours() / 10.0f);
 	batteryNode[F("source")] = evalChargeSource();
 	batteryNode[F("floatCharge")] = (status & CHARGING_FLOATING ? F("on") : F("off"));
-	batteryNode[F("floatVoltage")] = floatVoltage;
+	batteryNode[F("floatVoltage")] = round1(floatVoltage);
 	batteryNode[F("overdischargeProtection")] = overDischargeProtectionActive;
 	batteryNode[F("floatOverride")] = floatOverrideActive;
 
 	JsonObject pvNode = jsonDoc.createNestedObject(F("pv"));
-	pvNode[F("voltage")] = pvVoltage;
-	pvNode[F("current")] = pvCurrent;
+	pvNode[F("voltage")] = round1(pvVoltage);
+	pvNode[F("current")] = round1(pvCurrent);
 	pvNode[F("power")] = pvChargingPower;
 	pvNode[F("maxPower")] = getMaximumSolarPower();
 	pvNode[F("maxCurrent")] = getMaximumSolarCurrent();
@@ -461,7 +481,7 @@ String Inverter::toJSON() {
 	systemNode[F("mode")] = modeString[mode];
 	systemNode[F("switch")] = (status & SWITCHED_ON ? F("on") : F("off"));
 	systemNode[F("voltage")] = busVoltage;
-	systemNode[F("temperature")] = temperature;
+	systemNode[F("temperature")] = round1(temperature);
 	systemNode[F("fanCurrent")] = fanCurrent;
 	systemNode[F("faultCode")] = faultCode;
 	JsonArray warn = systemNode.createNestedArray(F("warning"));
@@ -470,6 +490,10 @@ String Inverter::toJSON() {
 	String str;
 	serializeJson(jsonDoc, str);
 	return str;
+}
+
+double Inverter::round1(double value) {
+	return (int)(value * 10 + 0.5) / 10.0;
 }
 
 String Inverter::evalChargeSource() {

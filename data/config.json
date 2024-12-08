@@ -27,6 +27,10 @@
     "cutoffRetry": {
       "time": 300,
       "minBatterySoc": 50
+    },
+    "inputOverride" : {
+      "activateSoc": 30,
+      "deactivateSoc": 60
     }
   },
   "battery": {
@@ -49,17 +53,18 @@
   "wifi": {
     "hostname": "solar",
     "station": {
-      "ssid": "",
-      "password": "",
+      "ssid": "Subspace Relay 47",
+      "password": "blablabla",
       "reconnectInterval": 15000
     },
     "ap": {
-      "ssid": "solar",
+      "ssid": "Solar",
       "password": "inverter",
       "channel": 7,
       "address": "192.168.4.1",
       "gateway": "192.168.4.1",
-      "netmask": "255.255.255.0"
+      "netmask": "255.255.255.0",
+	  "NAT": false
     }
   }
 }

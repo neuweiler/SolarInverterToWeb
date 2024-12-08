@@ -12,10 +12,7 @@
 #include "WebServer.h"
 #include "WLAN.h"
 
-void printHeapInfo(uint8_t i) {
-	Serial.printf("%d: free: %u, frag: %u, maxfree: %u\n", i,
-	ESP.getFreeHeap(), ESP.getHeapFragmentation(), ESP.getMaxFreeBlockSize());
-}
+//#define DEBUG_MEM
 
 void setup() {
 	logger.init();
@@ -32,6 +29,13 @@ void loop() {
 	webServer.loop();
 	inverter.loop();
 	wlan.loop();
-//printHeapInfo(9);
-//delay(100);
+
+#ifdef DEBUG_MEM
+    printHeapInfo();
+#endif
+}
+
+void printHeapInfo() {
+	logger.debug("free: %u, frag: %u, maxfree: %u", ESP.getFreeHeap(), ESP.getHeapFragmentation(), ESP.getMaxFreeBlockSize());
+    delay(500);
 }

@@ -11,9 +11,15 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
 #include <WiFiClient.h>
+#include <lwip/napt.h>
+#include <lwip/dns.h>
+//#include <dhcpserver.h>
 
 #include "Logger.h"
 #include "Inverter.h"
+
+#define NAPT 1000
+#define NAPT_PORT 10
 
 class WLAN
 {
@@ -24,12 +30,15 @@ public:
     void loop();
 
 private:
+    bool mode(WiFiMode_t m);
+
     void checkConnection();
 	void setupStation();
 	void setupAccessPoint();
+	void setupNAT();
 
     uint32_t lastConnectionAttempt;
-    bool apConnected, stationConnected;
+    bool isConnected;
 };
 
 extern WLAN wlan;

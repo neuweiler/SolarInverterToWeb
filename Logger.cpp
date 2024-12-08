@@ -7,10 +7,19 @@
 
 #include "Logger.h"
 
-//#define Serial1 Serial
+// uncomment next line to route logging output to Serial/USB/UART0 - will not work with attached inverter, only for dec purposes
+#define Serial1 Serial
+
+/*
+ * NOTE: Serial on Wemos D1 mini uses UART0 of ESP8266, which is mapped to pins TX (GPIO1) and RX (GPIO3).
+ * Serial1 uses UART1 which is a transmit-only UART. UART1 TX pin is D4 (GPIO2, LED).
+ *
+ * You can also use pins D7 and D8 (= GPIO 13 / RXD2 or GPIO 15 / TXD2) instead. All you have to do is insert the
+ * instruction Serial.swap() after Serial.begin() in the setup.
+ */
 
 void Logger::init() {
-	Serial1.begin(115200); // debug port
+	Serial1.begin(115200); // debug port = D4, LED, GPIO2 (not the USB port!)
 	logLevel = Debug;
 	debugging = true;
 	msgBuffer = new char[LOG_BUFFER_SIZE];
