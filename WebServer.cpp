@@ -50,6 +50,9 @@ bool WebServer::canHandle(HTTPMethod method, const String& uri) {
 	if (method == HTTP_GET && (uri.equals(F("/data")) || uri.equals(F("/list")) || uri.equals(F("/maxCurrent")))) {
 		return true;
 	}
+	if (method == HTTP_POST && uri.equals(F("/upload"))) {
+		return true;
+	}
 	if (method == HTTP_POST && uri.equals(F("/grid"))) {
 		return true;
 	}
@@ -57,7 +60,7 @@ bool WebServer::canHandle(HTTPMethod method, const String& uri) {
 }
 
 bool WebServer::canUpload(const String& uri) {
-	return (uri.equals(F("/upload")));
+	return (canHandle(HTTP_POST, uri));
 }
 
 /**
