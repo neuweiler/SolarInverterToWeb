@@ -28,6 +28,9 @@ WLAN::WLAN() {
 WLAN::~WLAN() {
 }
 
+char stationSsid[32], apSsid[32];
+char stationPasswd[64], apPasswd[64];
+
 /**
  * Initialize the WiFi client and output ports.
  */
@@ -41,6 +44,12 @@ void WLAN::init() {
 	if (config.wifiApSsid[0] == 0) {
 		wifiMode = WIFI_STA; // act as Station only
 	}
+
+	// a workaround for ESP8266Wifi overwriting part of our config
+	memcpy(stationSsid, config.wifiStationSsid, 32);
+	memcpy(stationPasswd, config.wifiStationPassword, 64);
+	memcpy(apSsid, config.wifiApSsid, 32);
+	memcpy(apPasswd, config.wifiApPassword, 64);
 
 	WiFi.persistent(false); // prevent flash memory wear ! (https://github.com/esp8266/Arduino/issues/1054)
 	WiFi.hostname(config.wifiHostname);
@@ -77,14 +86,14 @@ void WLAN::checkConnection() {
 		isConnected = true;
 	} else {
 		isConnected = false;
+
 		// we try to (re)establish connection every 15sec, this allows softAP to work (although it gets blocked for 1-2sec)
-		if (config.wifiStationSsid[0] && millis() - lastConnectionAttempt > config.wifiStationReconnectInterval) {
-			logger.info(F("attempting to (re)connect to %s"), config.wifiStationSsid);
-			WiFi.begin(config.wifiStationSsid, config.wifiStationPassword);
+		if (stationSsid[0] && millis() - lastConnectionAttempt > config.wifiStationReconnectInterval) {
+			logger.info(F("attempting to (re)connect to %s"), stationSsid);
+			WiFi.reconnect();
 			lastConnectionAttempt = millis();
 		}
 	}
-//    apConnected = WiFi.softAPgetStationNum() > 0;
 
 	// indicate connection status via LED
 	digitalWrite(PIN_LED_WIFI_CONNECTED, (isConnected ? HIGH : LOW));
@@ -92,10 +101,7 @@ void WLAN::checkConnection() {
 
 void WLAN::setupStation() {
 	WiFi.setAutoReconnect(false); // auto-reconnect tries every 1sec, messes up soft-ap (can't connect)
-//WiFi.setAutoReconnect(true);
-	logger.info(F("Wifi: connecting to access point %s"), config.wifiStationSsid);
-	char stationSsid[32];
-	memcpy(stationSsid, config.wifiStationSsid, sizeof(stationSsid));
+	logger.info(F("Wifi: connecting to access point %s"), stationSsid);
 	WiFi.begin(stationSsid, config.wifiStationPassword);
 
 	uint8_t i = 60;
@@ -115,16 +121,11 @@ void WLAN::setupAccessPoint() {
 	IPAddress subnet;
 	subnet.fromString(config.wifiApNetmask);
 
-	/** A workaround for memory-corruption by wifi_set_mode_current(), refer to https://github.com/esp8266/Arduino/issues/9211 **/
-	char ssid[32], passwd[64];
-	memcpy(ssid, config.wifiApSsid, sizeof(ssid));
-	memcpy(passwd, config.wifiApPassword, sizeof(passwd));
-
 	WiFi.softAPConfig(localIp, gateway, subnet);
-	WiFi.softAP(ssid, passwd, config.wifiApChannel);
+	WiFi.softAP(apSsid, apPasswd, config.wifiApChannel);
 	delay(100); // wait for SYSTEM_EVENT_AP_START
 
-	logger.info(F("started WiFi AP %s on ip %s, channel %d"), config.wifiApSsid, WiFi.softAPIP().toString().c_str(),
+	logger.info(F("started WiFi AP %s on ip %s, channel %d"), apSsid, WiFi.softAPIP().toString().c_str(),
 			config.wifiApChannel);
 }
 
