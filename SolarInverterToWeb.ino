@@ -36,6 +36,6 @@ void loop() {
 }
 
 void printHeapInfo() {
-	logger.debug("free: %u, frag: %u, maxfree: %u", ESP.getFreeHeap(), ESP.getHeapFragmentation(), ESP.getMaxFreeBlockSize());
+	logger.debug(F("free: %u, frag: %u, maxfree: %u"), ESP.getFreeHeap(), ESP.getHeapFragmentation(), ESP.getMaxFreeBlockSize());
     delay(500);
 }

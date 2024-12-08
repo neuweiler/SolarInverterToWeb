@@ -54,12 +54,12 @@
     "hostname": "solar",
     "station": {
       "ssid": "Subspace Relay 47",
-      "password": "blablabla",
+      "password": "makeITso",
       "reconnectInterval": 15000
     },
     "ap": {
       "ssid": "Solar",
-      "password": "inverter",
+      "password": "inverter_42",
       "channel": 7,
       "address": "192.168.4.1",
       "gateway": "192.168.4.1",

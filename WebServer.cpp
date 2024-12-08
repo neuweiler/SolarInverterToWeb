@@ -72,7 +72,7 @@ bool WebServer::handle(ESP8266WebServer& server, HTTPMethod requestMethod, const
 	} else if (requestUri.equals(F("/list"))) {
 		handleFileList();
 	} else if (requestUri.equals(F("/upload")) && requestMethod == HTTP_POST) {
-		server.sendHeader(F("Location"), String("/list?dir=" + uploadPath), true);
+		server.sendHeader(F("Location"), String(F("/list?dir=") + uploadPath), true);
 		server.send(302, F("text/plain"), "");
 	} else if (requestUri.equals(F("/grid"))) {
 		inverter.switchToGrid();
@@ -162,7 +162,7 @@ void WebServer::handleFileList() {
 
 void WebServer::replyServerError(String msg) {
 	logger.error(msg);
-	server->send(500, F("text/plain"), msg + "\r\n");
+	server->send(500, F("text/plain"), msg + F("\r\n"));
 }
 
 WebServer webServer;

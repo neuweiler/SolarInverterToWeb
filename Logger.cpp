@@ -8,7 +8,7 @@
 #include "Logger.h"
 
 // uncomment next line to route logging output to Serial/USB/UART0 - will not work with attached inverter, only for dec purposes
-#define Serial1 Serial
+//#define Serial1 Serial
 
 /*
  * NOTE: Serial on Wemos D1 mini uses UART0 of ESP8266, which is mapped to pins TX (GPIO1) and RX (GPIO3).

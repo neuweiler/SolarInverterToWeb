@@ -53,7 +53,7 @@ Inverter::~Inverter() {
  * Initialize the Inverter.
  */
 void Inverter::init() {
-//	Serial.begin(2400);
+	Serial.begin(2400);
 
 	// get rid of boot-loader rubbish
 	Serial.write(13);
@@ -442,7 +442,7 @@ uint8_t Inverter::parseStatus2() {
  */
 String Inverter::toJSON() {
 	jsonDoc.clear();
-	jsonDoc["time"] = millis() / 1000;
+	jsonDoc[F("time")] = millis() / 1000;
 
 	JsonObject gridNode = jsonDoc.createNestedObject(F("grid"));
 	gridNode[F("voltage")] = round1(gridVoltage);

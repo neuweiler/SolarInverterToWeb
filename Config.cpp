@@ -18,7 +18,7 @@ void Config::init()
 void Config::load() {
     File file = LittleFS.open(CONFIG_FILE, "r");
     if (!file) {
-        logger.error("Failed to open %s", CONFIG_FILE);
+        logger.error(F("Failed to open %s"), CONFIG_FILE);
     }
 
     StaticJsonDocument < 2048 > doc;

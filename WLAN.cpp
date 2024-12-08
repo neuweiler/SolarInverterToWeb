@@ -107,61 +107,6 @@ void WLAN::setupStation() {
 }
 
 
-/***** Note: This code is only included from ESP8266WiFiGenericClass::mode() for debugging purposes ******/
-
-extern "C" char* wifi_station_hostname; // sdk's hostname location
-
-bool WLAN::mode(WiFiMode_t m) {
-    if (m & ~(WIFI_STA | WIFI_AP)) {
-        // any other bits than legacy disallowed
-        return false;
-    }
-
-    if(wifi_get_opmode() == (uint8) m){
-        return true;
-    }
-
-    char backup_hostname [33] { 0 }; // hostname is 32 chars long (RFC)
-
-    if (m != WIFI_OFF && wifi_fpm_get_sleep_type() != NONE_SLEEP_T) {
-        memcpy(backup_hostname, wifi_station_hostname, sizeof(backup_hostname));
-        // wifi starts asleep by default
-        wifi_fpm_do_wakeup();
-        wifi_fpm_close();
-    }
-
-    logger.debug("a pw: %s ssid: %s, ch: %d", config.wifiApPassword, config.wifiApSsid, config.wifiApChannel);
-    bool ret = false;
-    ETS_UART_INTR_DISABLE();
-    ret = wifi_set_opmode_current(m);
-    ETS_UART_INTR_ENABLE();
-    logger.debug("b pw: %s ssid: %s, ch: %d", config.wifiApPassword, config.wifiApSsid, config.wifiApChannel);
-
-    if(!ret)
-      return false; //calling wifi_set_opmode failed
-
-    //Wait for mode change, which is asynchronous.
-    //Only wait if in CONT context. If this were called from SYS, it's up to the user to serialize
-    //tasks to wait correctly.
-    constexpr unsigned int timeoutValue = 1000; //1 second
-    if(can_yield()) {
-        // check opmode every 100ms or give up after timeout
-        esp_delay(timeoutValue, [m]() { return wifi_get_opmode() != m; }, 100);
-
-        //if at this point mode still hasn't been reached, give up
-        if(wifi_get_opmode() != (uint8) m) {
-            return false; //timeout
-        }
-    }
-
-    if (backup_hostname[0])
-        memcpy(wifi_station_hostname, backup_hostname, sizeof(backup_hostname));
-
-    return ret;
-}
-
-/****** ********/
-
 void WLAN::setupAccessPoint() {
 	IPAddress localIp;
 	localIp.fromString(config.wifiApAddress);
@@ -170,21 +115,13 @@ void WLAN::setupAccessPoint() {
 	IPAddress subnet;
 	subnet.fromString(config.wifiApNetmask);
 
-	/***** Note: This code is only included from ESP8266WiFiGenericClass::mode() for debugging purposes ******/
-
-WiFiMode_t currentMode = WiFi.getMode();
-bool isEnabled = ((currentMode & WIFI_AP) != 0);
-
-if(!isEnabled) {
-	logger.debug("03ap pw: %s ssid: %s, ch: %d", config.wifiApPassword, config.wifiApSsid, config.wifiApChannel);
-  mode((WiFiMode_t)(currentMode | WIFI_AP));
-  logger.debug("04ap pw: %s ssid: %s, ch: %d", config.wifiApPassword, config.wifiApSsid, config.wifiApChannel);
-}
-
-	/****** *******/
+	/** A workaround for memory-corruption by wifi_set_mode_current(), refer to https://github.com/esp8266/Arduino/issues/9211 **/
+	char ssid[32], passwd[64];
+	memcpy(ssid, config.wifiApSsid, sizeof(ssid));
+	memcpy(passwd, config.wifiApPassword, sizeof(passwd));
 
 	WiFi.softAPConfig(localIp, gateway, subnet);
-	WiFi.softAP(config.wifiApSsid, config.wifiApPassword, config.wifiApChannel);
+	WiFi.softAP(ssid, passwd, config.wifiApChannel);
 	delay(100); // wait for SYSTEM_EVENT_AP_START
 
 	logger.info(F("started WiFi AP %s on ip %s, channel %d"), config.wifiApSsid, WiFi.softAPIP().toString().c_str(),
