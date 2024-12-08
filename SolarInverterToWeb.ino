@@ -12,8 +12,6 @@
 #include "WebServer.h"
 #include "WLAN.h"
 
-//#define DEBUG_MEM
-
 void setup() {
 	logger.init();
 	logger.info(F("Starting solar monitor..."));

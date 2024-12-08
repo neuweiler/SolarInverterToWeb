@@ -53,7 +53,9 @@ Inverter::~Inverter() {
  * Initialize the Inverter.
  */
 void Inverter::init() {
+#ifndef DEBUG_LOG
 	Serial.begin(2400);
+#endif
 
 	// get rid of boot-loader rubbish
 	Serial.write(13);

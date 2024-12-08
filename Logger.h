@@ -10,8 +10,14 @@
 #define LOGGER_H_
 
 #include <Arduino.h>
+#include "Config.h"
 
 #define LOG_BUFFER_SIZE 160
+
+// route logging output to Serial/USB/UART0 if debug is enabled - will not work with attached inverter
+#ifdef DEBUG_LOG
+#define Serial1 Serial
+#endif
 
 class Logger
 {

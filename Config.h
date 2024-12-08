@@ -20,6 +20,12 @@
 #include <ArduinoJson.h>
 #include "Logger.h"
 
+// uncomment to enable memory stats being sent every 0.5sec
+//#define DEBUG_MEM
+
+// uncomment to redirect all log output to Serial (USB) and set speed to 115200 - only works with no inverter connected, use only during dev
+//#define DEBUG_LOG
+
 class Config
 {
 public:
