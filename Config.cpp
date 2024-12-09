@@ -21,10 +21,13 @@ void Config::load() {
         logger.error(F("Failed to open %s"), CONFIG_FILE);
     }
 
-    StaticJsonDocument < 2048 > doc;
+    doc.clear();
     DeserializationError error = deserializeJson(doc, file);
+    file.close();
+
 	if (error) {
 		logger.error(F("could not parse config: %s"), error.f_str());
+		return;
 	}
 
     inverterInterval = doc[F("inverter")][F("interval")] | 300;
@@ -64,8 +67,6 @@ void Config::load() {
     wifiApGateway = doc[F("wifi")][F("ap")][F("gateway")] | "192.168.4.1";
     wifiApNetmask = doc[F("wifi")][F("ap")][F("netmask")] | "255.255.255.0";
     wifiApNAT= doc[F("wifi")][F("ap")][F("NAT")] | false;
-
-    file.close();
 }
 
 Config config;

@@ -28,9 +28,6 @@ WLAN::WLAN() {
 WLAN::~WLAN() {
 }
 
-char stationSsid[32], apSsid[32];
-char stationPasswd[64], apPasswd[64];
-
 /**
  * Initialize the WiFi client and output ports.
  */
@@ -44,12 +41,6 @@ void WLAN::init() {
 	if (config.wifiApSsid[0] == 0) {
 		wifiMode = WIFI_STA; // act as Station only
 	}
-
-	// a workaround for ESP8266Wifi overwriting part of our config
-	memcpy(stationSsid, config.wifiStationSsid, 32);
-	memcpy(stationPasswd, config.wifiStationPassword, 64);
-	memcpy(apSsid, config.wifiApSsid, 32);
-	memcpy(apPasswd, config.wifiApPassword, 64);
 
 	WiFi.persistent(false); // prevent flash memory wear ! (https://github.com/esp8266/Arduino/issues/1054)
 	WiFi.hostname(config.wifiHostname);
@@ -88,8 +79,8 @@ void WLAN::checkConnection() {
 		isConnected = false;
 
 		// we try to (re)establish connection every 15sec, this allows softAP to work (although it gets blocked for 1-2sec)
-		if (stationSsid[0] && millis() - lastConnectionAttempt > config.wifiStationReconnectInterval) {
-			logger.info(F("attempting to (re)connect to %s"), stationSsid);
+		if (config.wifiStationSsid[0] && millis() - lastConnectionAttempt > config.wifiStationReconnectInterval) {
+			logger.info(F("attempting to (re)connect to %s"), config.wifiStationSsid);
 			WiFi.reconnect();
 			lastConnectionAttempt = millis();
 		}
@@ -101,8 +92,8 @@ void WLAN::checkConnection() {
 
 void WLAN::setupStation() {
 	WiFi.setAutoReconnect(false); // auto-reconnect tries every 1sec, messes up soft-ap (can't connect)
-	logger.info(F("Wifi: connecting to access point %s"), stationSsid);
-	WiFi.begin(stationSsid, config.wifiStationPassword);
+	logger.info(F("Wifi: connecting to access point %s"), config.wifiStationSsid);
+	WiFi.begin(config.wifiStationSsid, config.wifiStationPassword);
 
 	uint8_t i = 60;
 	while (!WiFi.isConnected() && i-- > 0) {
@@ -122,10 +113,10 @@ void WLAN::setupAccessPoint() {
 	subnet.fromString(config.wifiApNetmask);
 
 	WiFi.softAPConfig(localIp, gateway, subnet);
-	WiFi.softAP(apSsid, apPasswd, config.wifiApChannel);
+	WiFi.softAP(config.wifiApSsid, config.wifiApPassword, config.wifiApChannel);
 	delay(100); // wait for SYSTEM_EVENT_AP_START
 
-	logger.info(F("started WiFi AP %s on ip %s, channel %d"), apSsid, WiFi.softAPIP().toString().c_str(),
+	logger.info(F("started WiFi AP %s on ip %s, channel %d"), config.wifiApSsid, WiFi.softAPIP().toString().c_str(),
 			config.wifiApChannel);
 }
 

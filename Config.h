@@ -83,6 +83,9 @@ public:
     const char *wifiApGateway; // the gateway address of the network we provide
     const char *wifiApNetmask; // the netmask of the network we provide
     bool wifiApNAT; // if NAT should be enabled in AP/Station mode to forward traffic to foreign AP
+
+private:
+    JsonDocument doc;
 };
 
 extern Config config;
