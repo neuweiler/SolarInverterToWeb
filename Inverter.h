@@ -117,6 +117,7 @@ private:
 	bool overDischargeProtection();
 	bool adjustOutputPrio();
 	double round1(double value);
+	char *getTimeStamp(uint32_t ms);
 
     char input[INPUT_BUFFER_SIZE + 1];
     char buffer[20];
@@ -147,7 +148,8 @@ private:
     bool overDischargeProtectionActive;
     bool inputOverrideActive;
     float floatVoltage; // in V
-	StaticJsonDocument<2048> jsonDoc;
+	char timeStampBuf[30];
+	JsonDocument jsonDoc;
 };
 
 extern Inverter inverter;

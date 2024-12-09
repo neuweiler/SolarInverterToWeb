@@ -444,22 +444,21 @@ uint8_t Inverter::parseStatus2() {
  */
 String Inverter::toJSON() {
 	jsonDoc.clear();
-	jsonDoc[F("time")] = millis() / 1000;
 
-	JsonObject gridNode = jsonDoc.createNestedObject(F("grid"));
+	JsonObject gridNode = jsonDoc[F("grid")].to<JsonObject>();
 	gridNode[F("voltage")] = round1(gridVoltage);
 	gridNode[F("frequency")] = round1(gridFrequency);
 
-	JsonObject outNode = jsonDoc.createNestedObject(F("out"));
+	JsonObject outNode = jsonDoc[F("out")].to<JsonObject>();
 	outNode[F("voltage")] = round1(outVoltage);
 	outNode[F("frequency")] = round1(outFrequency);
 	outNode[F("powerApparent")] = outPowerApparent;
 	outNode[F("powerActive")] = outPowerActive;
 	outNode[F("load")] = outLoad;
 	outNode[F("source")] = evalLoadSource();
-	outNode[F("mode")] = inputOverrideActive ? F("SUB") : F("SBU");
+	outNode[F("mode")] = inputOverrideActive ? F("Solar-Utility-Battery") : F("Solar-Battery-Utility");
 
-	JsonObject batteryNode = jsonDoc.createNestedObject(F("battery"));
+	JsonObject batteryNode = jsonDoc[F("battery")].to<JsonObject>();
 	batteryNode[F("voltage")] = round1(battery.getVoltage());
 	batteryNode[F("current")] = battery.getCurrent();
 	batteryNode[F("power")] = battery.getPower();
@@ -471,14 +470,14 @@ String Inverter::toJSON() {
 	batteryNode[F("overdischargeProtection")] = overDischargeProtectionActive;
 	batteryNode[F("floatOverride")] = floatOverrideActive;
 
-	JsonObject pvNode = jsonDoc.createNestedObject(F("pv"));
+	JsonObject pvNode = jsonDoc[F("pv")].to<JsonObject>();
 	pvNode[F("voltage")] = round1(pvVoltage);
 	pvNode[F("current")] = round1(pvCurrent);
 	pvNode[F("power")] = pvChargingPower;
 	pvNode[F("maxPower")] = getMaximumSolarPower();
 	pvNode[F("maxCurrent")] = getMaximumSolarCurrent();
 
-	JsonObject systemNode = jsonDoc.createNestedObject(F("system"));
+	JsonObject systemNode = jsonDoc[F("system")].to<JsonObject>();
 	systemNode[F("version")] = eepromVersion;
 	systemNode[F("mode")] = modeString[mode];
 	systemNode[F("switch")] = (status & SWITCHED_ON ? F("on") : F("off"));
@@ -486,12 +485,23 @@ String Inverter::toJSON() {
 	systemNode[F("temperature")] = round1(temperature);
 	systemNode[F("fanCurrent")] = fanCurrent;
 	systemNode[F("faultCode")] = faultCode;
-	JsonArray warn = systemNode.createNestedArray(F("warning"));
+	JsonArray warn = systemNode[F("warning")].to<JsonArray>();
 	evalWarning(warn);
+	systemNode[F("time")] = getTimeStamp(millis());
+	JsonObject memory = systemNode[F("memory")].to<JsonObject>();
+	memory[F("freeHeap")] = ESP.getFreeHeap();
+	memory[F("fragmentation")] = ESP.getHeapFragmentation();
+	memory[F("freeBlockMax")] = ESP.getMaxFreeBlockSize();
 
 	String str;
 	serializeJson(jsonDoc, str);
 	return str;
+}
+
+char *Inverter::getTimeStamp(uint32_t s) {
+	s /= 1000;
+	sprintf(timeStampBuf, "%.3d:%.2d:%.2d:%.2d", s / 86400, (s / 3600) % 24, (s / 60) % 60, s % 60);
+	return timeStampBuf;
 }
 
 double Inverter::round1(double value) {
